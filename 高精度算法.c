@@ -115,36 +115,36 @@
 //     return 0;
 // }
 //高精度乘法
-#include<stdio.h>
-#include<string.h>
-int main()
-{
-    char s1[10000],s2[10000];
-    int a[10000],b[10000],c[10000]={0},i,j,la,lb,lc;
-    scanf("%s",s1);
-    scanf("%s",s2);
-    la=strlen(s1);
-    lb=strlen(s2);
-    for(i=0;i<la;i++){
-        a[la-i]=s1[i]-'0';//这里从1开始，到la结束
-    }
-     for(i=0;i<lb;i++){
-        b[lb-i]=s2[i]-'0';
-    }
-    lc=la+lb;
-    for(i=1;i<=la;i++){
-        for(j=1;j<=lb;j++){
-            c[i+j-1]+=a[i]*b[j];
-            c[i+j]+=c[i+j-1]/10;
-            c[i+j-1]%=10;
-        }
-    }
-        if(c[lc]==0&&lc>0){
-            lc--;
-        }
-        for(i=lc;i>0;i--){
-            printf("%d",c[i]);
-        }
-        return 0;
+// #include<stdio.h>
+// #include<string.h>
+// int main()
+// {
+//     char s1[10000],s2[10000];
+//     int a[10000],b[10000],c[10000]={0},i,j,la,lb,lc;
+//     scanf("%s",s1);
+//     scanf("%s",s2);
+//     la=strlen(s1);
+//     lb=strlen(s2);
+//     for(i=0;i<la;i++){
+//         a[la-i]=s1[i]-'0';//这里从1开始，到la结束
+//     }
+//      for(i=0;i<lb;i++){
+//         b[lb-i]=s2[i]-'0';
+//     }
+//     lc=la+lb;
+//     for(i=1;i<=la;i++){
+//         for(j=1;j<=lb;j++){
+//             c[i+j-1]+=a[i]*b[j];
+//             c[i+j]+=c[i+j-1]/10;
+//             c[i+j-1]%=10;
+//         }
+//     }
+//         if(c[lc]==0&&lc>0){
+//             lc--;
+//         }
+//         for(i=lc;i>0;i--){
+//             printf("%d",c[i]);
+//         }
+//         return 0;
 
-}
+// }
