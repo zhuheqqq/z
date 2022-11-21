@@ -7,7 +7,7 @@ int main(void)
     printf("%.6f %.6f\n",n,m);
     printf("%.12f %.12f\n",n,m);
     printf("%.16f %.16f\n",n,m);
-    printf("%d %d",FLT_DIG,DBL_DIG);
+    printf("%d %d",FLT_DIG,DBL_DIG);//显示float和double的精度
 
     return 0;
 }
