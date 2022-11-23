@@ -21,7 +21,7 @@ int main(void){
             while(last->next){
                 last=last->next;
             }
-            //attach
+            
         }
     }while(number!=-1);
 }
