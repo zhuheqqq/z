@@ -24,6 +24,22 @@ int main(void)
         }
         q=p;
     }
+    // while(t!=NULL){
+    //     printf("%d ",t->data);
+    //     t=t->next;
+    // }
+    scanf("%d",&a);
+    t=head;
+    while(t!=NULL){
+        if(t->next==NULL||t->next->data>a){
+            p=(struct node *)malloc(sizeof(struct node));
+            p->data=a;
+            p->next=t->next;
+            t->next=p;
+            break;
+        }
+        t=t->next;
+    }
     t=head;
     while(t!=NULL){
         printf("%d ",t->data);
