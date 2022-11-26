@@ -24,10 +24,6 @@ int main(void)
         }
         q=p;
     }
-    // while(t!=NULL){
-    //     printf("%d ",t->data);
-    //     t=t->next;
-    // }
     scanf("%d",&a);
     t=head;
     while(t!=NULL){
