@@ -53,3 +53,16 @@
 //     return 0;
 
 // }
+//interest=money×(1+rate) year−money
+// #include<stdio.h>
+// #include<math.h>
+// int main(void)
+// {
+//     int year;
+//     double mon,rate,inte;
+//     scanf("%lf %d %lf",&mon,&year,&rate);
+//     inte=mon*pow((1+rate),year)-mon;
+// printf("interest = %.2f",inte);
+// return 0;
+
+// }
