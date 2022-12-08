@@ -66,3 +66,55 @@
 // return 0;
 
 // }
+
+// #include<stdio.h>
+// int main(void)
+// {
+//     int n;
+//     scanf("%d",&n);
+//     if(n==0){
+//         printf("sign(%d) = 0",n);
+//     }else if(n>0){
+//         printf("sign(%d) = 1",n);
+//     }else{
+//         printf("sign(%d) = -1",n);
+//     }
+//     return 0;
+// }
+#include<stdio.h>
+#include<stdlib.h>
+int main(void)
+{
+    int n,i,j,k=0,m=0,max,t,cnt=0;
+    scanf("%d",&n);
+    int (*a)[6]=(int(*)[6])malloc(sizeof(int)*n*6);
+    for(i=0;i<n;i++){
+        for(j=0;j<n;j++){
+            scanf("%d",&a[i][j]);
+        }
+    }
+    for(i=0;i<n;i++){
+        cnt=0;
+        max=a[i][0];
+        for(j=0;j<n;j++){
+            if(a[i][j]>max){
+                max=a[i][j];
+                k=i;
+                m=j;
+            }
+            for(t=0;t<n;t++){
+                if(max>a[t][j]){
+                    cnt=1;
+                }
+            }
+            if(cnt==0){
+                break;
+            }
+        }
+    }
+    if(cnt==1){
+        printf("NONE");
+    }else{
+        printf("%d %d",k,m);
+    }
+}
