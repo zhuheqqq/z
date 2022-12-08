@@ -36,20 +36,20 @@
 //         printf("%d\n",b[i]);
 //     }
 // }
-#include<stdio.h>
-#include<math.h>
-int main(void)
-{
-    double a,b,c;
-    double s,area;
-    scanf("%lf %lf %lf",&a,&b,&c);
-    if(a+b>c&&a+c>b&&b+c>a){
-        s=(a+b+c)/2;
-        area=sqrt(s*(s-a)*(s-b)*(s-c));
-        printf("area = %.2f; perimeter = %.2f",area,2*s);
-    }else{
-        printf("These sides do not correspond to a valid triangle");
-    }
-    return 0;
+// #include<stdio.h>
+// #include<math.h>
+// int main(void)
+// {
+//     double a,b,c;
+//     double s,area;
+//     scanf("%lf %lf %lf",&a,&b,&c);
+//     if(a+b>c&&a+c>b&&b+c>a){
+//         s=(a+b+c)/2;
+//         area=sqrt(s*(s-a)*(s-b)*(s-c));
+//         printf("area = %.2f; perimeter = %.2f",area,2*s);
+//     }else{
+//         printf("These sides do not correspond to a valid triangle");
+//     }
+//     return 0;
 
-}
+// }
