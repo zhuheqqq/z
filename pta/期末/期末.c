@@ -12,6 +12,9 @@
 //     printf("%d",j);
 //     return 0;
 // }
+
+
+
 // #include<stdio.h>
 // #include<stdlib.h>
 // #include<string.h>
@@ -36,6 +39,9 @@
 //         printf("%d\n",b[i]);
 //     }
 // }
+
+
+
 // #include<stdio.h>
 // #include<math.h>
 // int main(void)
@@ -53,6 +59,9 @@
 //     return 0;
 
 // }
+
+
+
 //interest=money×(1+rate) year−money
 // #include<stdio.h>
 // #include<math.h>
@@ -66,6 +75,8 @@
 // return 0;
 
 // }
+
+
 
 // #include<stdio.h>
 // int main(void)
@@ -81,6 +92,9 @@
 //     }
 //     return 0;
 // }
+
+
+
 // #include<stdio.h>
 // #include<stdlib.h>
 // int main(void)
@@ -118,6 +132,8 @@
 //         printf("%d %d",k,m);
 //     }
 // }
+
+
 // #include <stdio.h>
 // #define MAXN 6
 
@@ -157,25 +173,28 @@
 
 //     return 0;
 // }
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-int main(void)
-{
-    char str[80];
-    gets(str);
-    int i=0,len;
-    len=strlen(str);
-    while(str[i]!='#'){
-        if(str[i]>='a'&&str[i]<='z'){
-            str[i]=str[i]-'a'+'A';
-        }else if(str[i]>='A'&&str[i]<='Z'){
-            str[i]=str[i]-'A'+'a';
-        }
-        i++;
-    }
-    for(i=0;i<len-1;i++){
-        printf("%c",str[i]);
-    }
-    return 0;
-}
+
+
+
+// #include<stdio.h>
+// #include<string.h>
+// #include<stdlib.h>
+// int main(void)
+// {
+//     char str[80];
+//     gets(str);
+//     int i=0,len;
+//     len=strlen(str);
+//     while(str[i]!='#'){
+//         if(str[i]>='a'&&str[i]<='z'){
+//             str[i]=str[i]-'a'+'A';
+//         }else if(str[i]>='A'&&str[i]<='Z'){
+//             str[i]=str[i]-'A'+'a';
+//         }
+//         i++;
+//     }
+//     for(i=0;i<len-1;i++){
+//         printf("%c",str[i]);
+//     }
+//     return 0;
+// }
