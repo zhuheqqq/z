@@ -118,42 +118,64 @@
 //         printf("%d %d",k,m);
 //     }
 // }
-#include <stdio.h>
-#define MAXN 6
+// #include <stdio.h>
+// #define MAXN 6
 
-int main(void) {
-    int n, matrix[MAXN][MAXN], i, j, k, i_max, j_min;
+// int main(void) {
+//     int n, matrix[MAXN][MAXN], i, j, k, i_max, j_min;
 
-    scanf("%d", &n);  //输入阶数
-    for (i = 0; i < n; i++) {  //输入数据
-        for (j = 0; j < n; j++) {
-            scanf("%d", &matrix[i][j]);
+//     scanf("%d", &n);  //输入阶数
+//     for (i = 0; i < n; i++) {  //输入数据
+//         for (j = 0; j < n; j++) {
+//             scanf("%d", &matrix[i][j]);
+//         }
+//     }
+//     for (i = 0; i < n; i++) {
+//         i_max = matrix[i][0];
+//         for (j = 0; j < n; j++) {  //找到该行最大数
+//             if (matrix[i][j] > i_max) {
+//                 i_max = matrix[i][j];
+//             }
+//         }
+//         for (j = 0; j < n; j++) {
+//             j_min = matrix[0][j];
+//             for (k = 0; k < n; k++) {  //找到该列最小数
+//                 if (matrix[k][j] < j_min) {
+//                     j_min = matrix[k][j];
+//                 }
+//             }
+//             if (matrix[i][j] == i_max) {
+//                 if (matrix[i][j] == j_min) {
+//                     printf("%d %d\n", i, j);
+
+//                     return 0;
+//                 }
+//             }
+//         }
+//     }
+//     printf("NONE\n");
+
+//     return 0;
+// }
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+int main(void)
+{
+    char str[80];
+    gets(str);
+    int i=0,len;
+    len=strlen(str);
+    while(str[i]!='#'){
+        if(str[i]>='a'&&str[i]<='z'){
+            str[i]=str[i]-'a'+'A';
+        }else if(str[i]>='A'&&str[i]<='Z'){
+            str[i]=str[i]-'A'+'a';
         }
+        i++;
     }
-    for (i = 0; i < n; i++) {
-        i_max = matrix[i][0];
-        for (j = 0; j < n; j++) {  //找到该行最大数
-            if (matrix[i][j] > i_max) {
-                i_max = matrix[i][j];
-            }
-        }
-        for (j = 0; j < n; j++) {
-            j_min = matrix[0][j];
-            for (k = 0; k < n; k++) {  //找到该列最小数
-                if (matrix[k][j] < j_min) {
-                    j_min = matrix[k][j];
-                }
-            }
-            if (matrix[i][j] == i_max) {
-                if (matrix[i][j] == j_min) {
-                    printf("%d %d\n", i, j);
-
-                    return 0;
-                }
-            }
-        }
+    for(i=0;i<len-1;i++){
+        printf("%c",str[i]);
     }
-    printf("NONE\n");
-
     return 0;
 }
