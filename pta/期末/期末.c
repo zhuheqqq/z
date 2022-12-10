@@ -219,3 +219,28 @@
 //     }
 //     return 0;
 // }
+
+
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+int main(void)
+{
+    int n,i,len,max=0,j=0;
+    scanf("%d",&n);
+    char (*ch)[100]=(char (*)[100])malloc(sizeof(char)*n*100);
+    int *a=(int *)malloc(sizeof(int)*n);
+    for(i=0;i<n;i++){
+        for(i=0;i<n;i++){
+            scanf("%s",ch[i]);
+            a[i]=strlen(ch[i]);
+        }
+    }
+    for(i=0;i<n;i++){
+        if(a[i]>max){
+            max=a[i];
+            j=i;
+        }
+    }
+    printf("The longest is: %s",ch[j]);
+}
