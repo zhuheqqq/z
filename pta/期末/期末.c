@@ -221,26 +221,43 @@
 // }
 
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-int main(void)
-{
-    int n,i,len,max=0,j=0;
-    scanf("%d",&n);
-    char (*ch)[100]=(char (*)[100])malloc(sizeof(char)*n*100);
-    int *a=(int *)malloc(sizeof(int)*n);
-    for(i=0;i<n;i++){
-        for(i=0;i<n;i++){
-            scanf("%s",ch[i]);
-            a[i]=strlen(ch[i]);
-        }
-    }
-    for(i=0;i<n;i++){
-        if(a[i]>max){
-            max=a[i];
-            j=i;
-        }
-    }
-    printf("The longest is: %s",ch[j]);
-}
+// #include<stdio.h>
+// #include<string.h>
+// #include<stdlib.h>
+// int main(void)
+// {
+//     int n,i,len,max=0,j=0;
+//     scanf("%d",&n);
+//     char (*ch)[100]=(char (*)[100])malloc(sizeof(char)*n*100);
+//     int *a=(int *)malloc(sizeof(int)*n);
+//     for(i=0;i<n;i++){
+//         for(i=0;i<n;i++){
+//             scanf("%s",ch[i]);
+//             a[i]=strlen(ch[i]);
+//         }
+//     }
+//     for(i=0;i<n;i++){
+//         if(a[i]>max){
+//             max=a[i];
+//             j=i;
+//         }
+//     }
+//     printf("The longest is: %s",ch[j]);
+// }
+
+
+// #include<stdio.h>
+// #include<string.h>
+// int main()
+// {char a[200],
+// b[10];
+// int k=0;
+// for(int i=0;i<4;i++){
+// scanf("%s",a);
+// int len=strlen(a);
+// b[k++]=a[len-2];
+// b[k++]=a[len-1]; }
+// b[k]=’\0’;
+// puts(b);//自动加上换行符
+// //printf("\n");
+// return 0;}
