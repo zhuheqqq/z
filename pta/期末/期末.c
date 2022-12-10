@@ -261,3 +261,35 @@
 // puts(b);//自动加上换行符
 // //printf("\n");
 // return 0;}
+
+
+#include<stdio.h>
+struct content{
+    char name[40];
+    int bir;
+    char num[40];
+};
+int main(void)
+{
+    struct content con[10],con1[10];
+    int n,i;
+    scanf("%d",&n);
+    for(i=0;i<n;i++){
+        scanf("%s %d %s",con[i].name,&con[i].bir,con[i].num);
+    }
+    for(i=0;i<n-1;i++){
+        if(con[i].bir>con[i+1].bir){
+            con1[i]=con[i+1];
+            con[i+1]=con[i];
+            con[i]=con1[i];
+        }else{
+            con1[i]=con[i];
+        }
+    }
+    con1[i]=con[i];
+    for(i=0;i<n;i++)
+    {
+        printf("%s %d %s\n",con1[i].name,con1[i].bir,con1[i].num);
+    }
+}
+
