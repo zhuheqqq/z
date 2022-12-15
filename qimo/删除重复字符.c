@@ -16,4 +16,4 @@ int main(void)
         }
     }
     return 0;
-}
+}//删除重复字符

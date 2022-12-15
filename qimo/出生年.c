@@ -22,5 +22,5 @@ int main(){
         printf("%d %04d", i-year, i);      
         system("pause");    
         return 0;
-}
+}//出生年
 

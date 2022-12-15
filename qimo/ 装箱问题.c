@@ -24,3 +24,4 @@ int main()
 	printf("%d\n",xsum);
 	return 0;
 }
+//装箱问题

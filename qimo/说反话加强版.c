@@ -43,3 +43,4 @@ int main()
     }
     return 0;
 }
+//说反话加强版

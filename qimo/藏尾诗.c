@@ -13,3 +13,4 @@ b[k]='\0';
 puts(b);
 //printf("\n");
 return 0;}
+//藏为是

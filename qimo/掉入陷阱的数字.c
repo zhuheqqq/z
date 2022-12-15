@@ -34,3 +34,4 @@ int main(){
     return 0;
 }
 
+//点入陷阱

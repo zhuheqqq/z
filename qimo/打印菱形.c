@@ -21,4 +21,4 @@ int main(void)
 	} 	
 	return 0;
 }
-
+//打印菱形

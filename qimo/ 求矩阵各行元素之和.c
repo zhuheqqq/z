@@ -21,4 +21,4 @@ int main(void)
     for(i=0;i<n;i++){
         printf("%d\n",b[i]);
     }
-}
+}//求矩阵各行元素之和

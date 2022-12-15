@@ -12,4 +12,4 @@ int main(int argc, char const *argv[])
 		while(x[i])
 		{	printf("%d",i);	x[i]--;		}
 	return 0;
-}
+}//阻隔最小数

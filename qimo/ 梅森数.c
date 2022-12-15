@@ -28,3 +28,4 @@ int main()
     printf("None");
   return 0;
 }
+//梅森数

@@ -23,4 +23,4 @@ int main()
     }
  
     return 0;
-}
+}//水仙花数

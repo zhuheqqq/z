@@ -40,4 +40,4 @@ int main(){
 		
 	}
 	printf("%d",num);
-}
+}//沙漏

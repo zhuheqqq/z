@@ -29,4 +29,4 @@ int main(int argc, char *argv[]) {
 	
 	return 0;
 
-}
+}//统计一批学生平均成绩与不及格人数

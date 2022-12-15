@@ -28,3 +28,4 @@ int main()
     
     return 0;
 }
+//计算平均成绩

@@ -20,5 +20,5 @@ int main(void)
 	c = a/m;
 	printf("%d %d",m,c);
 	return 0;
-}
+}//最大公约数最小公倍数
 
