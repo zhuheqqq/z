@@ -35,6 +35,7 @@ void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2);
 void strbuf_setlen(struct strbuf *sb, size_t len);
 size_t strbuf_avail(const struct strbuf *sb);
 void strbuf_insert(struct strbuf *sb, size_t pos, const void *data, size_t len);
+int strbuf_getline(struct strbuf *sb, FILE *fp);
 int main() {
   struct strbuf sb;
   strbuf_init(&sb, 10);
@@ -44,6 +45,9 @@ int main() {
   assert(strcmp(sb.buf, "xiyoulinux") == 0);
   strbuf_release(&sb);
 }
+
+
+//PART 2A
 
 //初始化 sb 结构体，容量为 alloc
 void strbuf_init(struct strbuf *sb, size_t alloc)
@@ -123,12 +127,14 @@ void strbuf_reset(struct strbuf *sb)
 //确保在 len 之后 strbuf 中至少有 extra 个字节的空闲空间可用
 void strbuf_grow(struct strbuf *sb, size_t extra)
 {
-  sb->buf=(char *)realloc(sb->buf,sb->len+extra);
-  if(sb->alloc<sb->len+extra){
-    sb->alloc=sb->len+extra;
+  sb->buf=(char *)realloc(sb->buf,sb->len+extra+1);
+  if(sb->alloc<sb->len+extra+1){
+    sb->alloc=sb->len+extra+1;
   }
 
 }
+
+//PART 2B
 
 //向 sb 追加长度为 len 的数据 data
 void strbuf_add(struct strbuf *sb, const void *data, size_t len)
@@ -195,7 +201,7 @@ void strbuf_setlen(struct strbuf *sb, size_t len)
 //计算 sb 目前仍可以向后追加的字符串长度
 size_t strbuf_avail(const struct strbuf *sb)
 {
-  return sb->alloc-sb->len;
+  return sb->alloc-sb->len-1;
 
 }
 
@@ -208,5 +214,99 @@ void strbuf_insert(struct strbuf *sb, size_t pos, const void *data, size_t len)
   }
   sb->buf=(char *)realloc(sb->buf,sb->len+1);
   char *p=(char *)malloc(sizeof(char)*(sb->len));
-  
+  char *t=(char *)malloc(sizeof(char)*(sb->len));
+  char *s=(char *)malloc(sizeof(char)*(sb->len));
+  t=sb->buf;
+  while(t<=sb->buf+pos){
+    *s=*t;
+    t++;
+    s++;
+  }
+  while(*t!='\0'){
+    *p=*t;
+    t++;
+    p++;
+  }
+  strcat(s,data);
+  strcat(s,p);
 }
+
+//PART 2C
+
+//去除 sb 缓冲区左端的所有 空格，tab, '\t'
+void strbuf_ltrim(struct strbuf *sb)
+{
+  char *s=sb->buf,*p=sb->buf;
+  while(*s!='\0'&&(*s==' '||*s=='\t')){
+    s++;
+  }
+  while(*s!='\0'){
+    *p++=*s++;
+  }
+  *p='\0';
+  sb->buf=p;
+}
+
+//去除 sb 缓冲区右端的所有 空格，tab, '\t'
+void strbuf_rtrim(struct strbuf *sb)
+{
+  while(sb->buf[sb->len]==' '||sb->buf[sb->len=='\t']){
+    sb->len--;
+  }
+  sb->buf[sb->len]='\0';
+
+}
+
+// 删除 sb 缓冲区从 pos 坐标长度为 len 的内容
+void strbuf_remove(struct strbuf *sb, size_t pos, size_t len)
+{
+  char *p=(char *)malloc(sizeof(char)*(sb->len));
+  char *t=(char *)malloc(sizeof(char)*(sb->len));
+  t=sb->buf+pos+len;
+  strcpy(p,sb->buf+pos+len);
+  sb->len=pos+len;
+  while(t!=sb->buf+pos-1){
+    sb->len--;
+    t--;
+  }
+  sb->buf[sb->len]='\0';
+  strcat(sb->buf,p);
+  sb->len-=len;
+}
+
+
+//PART 2D
+
+//sb 增长 hint ? hint : 8192 大小， 然后将文件描述符为 fd 的所有文件内容追加到 sb 中
+ssize_t strbuf_read(struct strbuf *sb, int fd, size_t hint)
+{
+  sb->buf=(struct strbuf *)realloc(sb->buf,(sb->alloc+=hint?hint:8192));
+  sb->alloc+=hint?hint:8192;
+  FILE *fp=fopen(fd,"r");
+  if(fp!=NULL){
+    char ch;
+    while((ch=fgetc(fd))!=EOF)
+    {
+      sb->buf[sb->len++]=ch;
+    }
+    sb->buf[sb->len]='\0';
+  }
+  return sb->len;
+}
+
+//将 将文件句柄为 fp 的一行内容（抛弃换行符）读取到 sb
+int strbuf_getline(struct strbuf *sb, FILE *fp)
+{
+  if(fp!=NULL){
+    char ch;
+    while(((ch=fgetc(fp))!=EOF)&&(ch!='\n')){
+      sb->buf=(struct strbuf *)realloc(sb->buf,sb->alloc);
+      sb->buf[sb->len++]=ch;
+    }
+    sb->buf[sb->len]='\0';
+  }
+  return sb->len;
+}
+
+
+//无信用挑战
