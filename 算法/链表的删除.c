@@ -2,9 +2,29 @@
 #include<stdlib.h>
 struct node{
     int data;
-    struct node **next;
+    struct node *next;
 };
 typedef struct node NODE;
+NODE *create();
+void print(NODE *head);
+void dele(NODE *head,int t);
+int main(void){
+    NODE *h;
+    int data;
+    h=create();
+    print(h);
+    while(1){
+        printf("输出待删除节点的值：");
+        scanf("%d",&data);
+        if(data<0){
+            break;
+        }
+        dele(h,data);
+        print(h);
+    }
+    return 0;
+
+}
 NODE *create(){
     NODE *head,*p,*q;
     int t;
@@ -36,11 +56,26 @@ void print(NODE *head){
             p=p->next;
         }
     }
+    printf("\n");
 }
-int main(int argc, int argv[]){
-    NODE *h;
-    h=create();
-    print(h);
-
-    return 0;
+void dele(NODE *head,int t)
+{
+    NODE *p,*q;
+    q=head;
+    p=head->next;
+    while(p!=NULL)
+    {
+    if(p->data==t){
+        q->next=p->next;
+        free(p);
+        break;
+    }else{
+        q=p;
+        p=p->next;
+    }
+    }
+    if(p==NULL){
+        printf("无符合条件的节点");
+    }
+    return;
 }
