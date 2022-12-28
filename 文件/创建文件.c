@@ -1,8 +1,24 @@
 #include<stdio.h>
+#include<stdlib.h>
 int main(void)
 {
-    fopen("zhuheqin.txt","w");
-    
+    FILE *fp;
+    char ch=6;
+    fp=fopen("zhuheqin.txt","a");
+    // if(fp==NULL){
+    //     printf("文件打开失败！");
+    //     exit(0);//立即退出当前程序，返回操作系统
+    // }
+
+
+    // ch=getc(fp);
+    // if(ch!=EOF)
+    // {
+    //     putchar(ch);
+    // }从文件中获取字符
+
+     putc(ch,fp);//放字符进入文件
+    fclose(fp);
     return 0;
 }
 //保存在当前文件夹（左上角文件点开 另存为  就可以看到他的路径）

@@ -68,3 +68,34 @@ int main(void)
         free(p);
         return 0;
 }
+
+//头插法
+Link newList(int a[],int n)
+{
+    head=(Link)malloc(sizeof(Node));
+    head->next=NULL;
+    for(i=0;i<n;i++){
+        node=(Link)malloc(sizeof(Node));
+        node->data=a[i];
+        node->next=head->next;
+        hesd->next=node;
+    }
+    return head;//和数组a的顺序相反
+}
+
+//尾插法
+Link newLink(int a[],int n)
+{
+    head=(Link)malloc(sizeof(Node));
+    head->next=NULL;
+    r=head;
+    for(i=0;i<n;i++){
+        node=(Link)malloc(sizeof(Node));
+        node->data=a[i];
+        node->next=NULL;
+        r->next=node;
+        r=node;
+    }
+    r->next=NULL;//很重要，忘记造成死循环
+    return head;
+}
