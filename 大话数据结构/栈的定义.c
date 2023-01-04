@@ -13,8 +13,8 @@ struct stack
 typedef struct stack Stack;
 void initStack(Stack *s);
 void destroyStack(Stack *s);
-void push(Stack s, char ch);
-char pop(Stack s);
+void push(Stack *s, char ch);
+char pop(Stack *s);
 bool isEmpty(Stack s);
 bool isFull(Stack s);
 void setNull(Stack s);
@@ -40,11 +40,12 @@ void setNull(Stack s)
     s.top = -1;
 }
 
-void push(Stack s, char ch)
+void push(Stack *s, char ch)
 {
-    if (!isFull(s))
+    if (s->top!=s->size-1)
     {
-        s.data[++s.top] = ch;
+        s->top++;
+        s->data[s->top] = ch;
     }
 }
 
@@ -72,11 +73,13 @@ bool isEmpty(Stack s)
     }
 }
 
-char pop(Stack s)
+char pop(Stack *s)
 {
-    if (!isEmpty(s))
+    
+    if (s->top!=-1)
     {
-        return s.data[s.top--];
+        return s->data[s->top--];
+        
     }
 }
 
@@ -86,11 +89,11 @@ int main(void)
     Stack *p=&s;
     initStack(p);
     s.size = 2;
-    push(s, 'a');
-    push(s, 'b');
+    push(p, 'a');
+    push(p, 'b');
     printf("%d\n", isFull(s));
-    printf("%c\n",(char)pop(s));
-    printf("%c\n", (char)pop(s));
+    printf("%c\n",pop(p));
+    printf("%c\n", pop(p));
     printf("%d\n", isEmpty(s));
     destroyStack(p);
     return 0;
