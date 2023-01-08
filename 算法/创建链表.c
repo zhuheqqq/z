@@ -78,7 +78,7 @@ Link newList(int a[],int n)
         node=(Link)malloc(sizeof(Node));
         node->data=a[i];
         node->next=head->next;
-        hesd->next=node;
+        head->next=node;
     }
     return head;//和数组a的顺序相反
 }
