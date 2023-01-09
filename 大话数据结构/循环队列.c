@@ -4,7 +4,7 @@
 typedef struct{
     int data[max];
     int front;
-    int rear;
+    int rear;//指向队尾下一个
 }S;
 //init
 bool init(S *Q){
