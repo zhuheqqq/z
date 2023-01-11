@@ -5,10 +5,12 @@ typedef struct QNode{
     int data;
     struct QNode *next;
 }QNode,*Qptr;
+
 //struct of linkqueue
 typedef struct{
     Qptr front,rear;//rear指向队尾
 }LinkQ;
+
 //push
 bool Qpush(LinkQ *q,int e){
     Qptr s=(Qptr)malloc(sizeof(QNode));
@@ -21,6 +23,7 @@ bool Qpush(LinkQ *q,int e){
     q->rear=s;
     return true;
 }
+
 //pop
 int Qpop(LinkQ *q){
     Qptr p=(Qptr)malloc(sizeof(QNode));
@@ -30,5 +33,4 @@ int Qpop(LinkQ *q){
     q->front=q->front->next;
     free(p);
     return e;
-
 }
