@@ -1,7 +1,7 @@
 #define max_tree_size 100
 
 typedef struct CTNode{//孩子结点
-    int child;
+    int child;//结点在表头数组中的下标
     struct CTNode *next;
 }*ChildPtr;
 
