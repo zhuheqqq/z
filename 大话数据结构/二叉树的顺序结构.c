@@ -83,3 +83,17 @@ bool Root(int *T,int *e){
 int Value(int *T,position e){
     return T[(int)powl(2,e.level-1)+e.order-2];
 }
+
+//若e是T的非根结点,则返回它的双亲,否则返回＂空
+int Parent(int *T,int e){
+    int i;
+    if(T[0]==0){
+        return 0;
+    }
+    for(i=1;i<MAX_TREE_SIZE-1;i++){
+        if(T[i]==e){
+            return T[(i+1)/2-1];
+        }
+    }
+    return 0;
+}
