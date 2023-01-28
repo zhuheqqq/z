@@ -32,7 +32,7 @@ void InOrderTraverse(BiTree T){
     if(T==NULL){
         return;
     }
-    InOrderTravese(T->lchild);
+    InOrderTraverse(T->lchild);
     printf("%c",T->data);
     InOrderTravese(T->rchild);
 }
@@ -46,6 +46,7 @@ void PostOrderTraverse(BiTree T){
     PostOrderTraverse(T->rchild);
     printf("%c",T->data);
 }
+
 
 
 
