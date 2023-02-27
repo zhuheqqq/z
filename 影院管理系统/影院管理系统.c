@@ -45,14 +45,14 @@ int Login()
                 printf("请输入用户名:");
                 scanf("%s",username);
                 printf("请输入您的密码:");
-                getchar();         //吸收回车
+                getchar();         //吸收回车防止对c造成影响
 
                 char c;
                 int i=0;
                 while(1){
                     system("stty -echo");    //密码不回显
                     c=getchar();
-                    system("stty -echo");
+                    system("stty -echo");     //getch平替
                     if(c!='\n'){
                         password[i]=c;
                         i++;
@@ -66,7 +66,7 @@ int Login()
 
                 fscanf(fp2,"%s %s",username,password);
 
-                if((strcmp(fusername,username)==0)&&(strcmp(fpassword,password)==0)){
+                if((strcmp(fusername,username)==0)&&(strcmp(fpassword,password)==0)){    //验证用户名及密码
                     printf("登陆成功！\n");
                     system("pause");              //防止闪退
                     return 1;
