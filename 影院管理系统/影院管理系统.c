@@ -1,0 +1,99 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<conio.h>                       //getch所在头文件
+
+int Login();                            //注册登陆模块             
+void Directory();                       //打印影院功能目录
+
+
+//用户注册登陆
+int Login()
+{
+    int choice;
+    char fusername[100],fpassword[100];
+    char username[100],password[100];
+
+    while(1)
+    {
+            printf("*********************************************************\n");
+            printf("*\t\t1.用户注册\t\t\t        *\n");
+            printf("*\t\t2.用户登录\t\t\t        *\n");
+            printf("*********************************************************\n");
+    
+
+            printf("请输入您的选项:");
+            scanf("%d",&choice);
+
+            if(choice==1)
+            {
+                FILE*fp1=fopen("user.txt","w");
+                printf("请输入用户名:");
+                scanf("%s",username);
+                printf("请输入8位密码:");
+                scanf("%s",password);
+
+                fprintf(fp1,"%s %s",username,password);
+                fclose(fp1);
+
+                printf("注册成功！\n");
+            }else if(choice==2){
+                FILE *fp2=fopen("user.txt","r");
+                printf("请输入用户名:");
+                scanf("%s",username);
+                printf("请输入8位密码:");
+
+                char c;
+                int i=0;
+                while((c=getch())!='r'){//密码不回显
+                    password[i]=c;
+                    i++;
+                    printf("*");//密码保护
+                }
+                printf("\n");
+                password[i]='\0';
+
+                fscanf(fp2,"%s %s",username,password);
+
+                if((strcmp(fusername,username)==0)&&(strcmp(fpassword,password)==0)){
+                    printf("登陆成功！");
+                    return 1;
+                }else{
+                    printf("用户名或密码错误！");
+                    return 0;
+                }
+
+            }
+    }
+}
+
+
+
+//影院功能目录
+void Directory()
+{
+    printf("*********************************************************\n");
+    printf("*\t\t欢迎使用影院管理系统\t\t\t*\n");
+    printf("*********************************************************\n");
+    printf("*\t\t   功能展示如下\t\t\t        *\n");
+    printf("---------------------------------------------------------\n");
+    printf("*\t\t1.录入电影信息\t\t\t        *\n");
+    printf("*\t\t2.查询电影信息\t\t\t        *\n");
+    printf("*\t\t3.修改电影信息\t\t\t        *\n");
+    printf("*\t\t4.删除电影信息\t\t\t        *\n");
+    printf("*\t\t5.电影信息排序\t\t\t        *\n");
+    printf("*\t\t6.显示所有电影信息\t\t        *\n");
+    printf("*\t\t7.添加电影信息\t\t\t        *\n");
+    printf("*\t\t8.保存\t\t\t                *\n");
+    printf("*\t\t9.退出\t\t\t                *\n");
+    printf("*********************************************************\n");
+    printf("请选择您需要的功能：");
+}
+
+int main()
+{
+    Login();
+    Directory();
+
+    return 0;
+}
