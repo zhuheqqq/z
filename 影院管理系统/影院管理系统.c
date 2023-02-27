@@ -5,7 +5,7 @@
 
 int Login();                            //注册登陆模块             
 void Directory();                       //打印影院功能目录
-
+int Choose();                           //选择功能函数
 
 
 typedef struct movie{
@@ -116,6 +116,18 @@ void Directory()
     printf("*\t\t9.退出\t\t\t                *\n");
     printf("*********************************************************\n");
     printf("请选择您需要的功能：");
+}
+
+int Choose()
+{
+    int n;
+    printf("请输入您想选择的功能序号：");
+    while(scanf("%d",&n)!=1||n<0||n>9){
+        printf("\n输入错误,请重新输入:");
+        scanf("%d",&n);
+    }
+
+    return n;
 }
 
 int main()
