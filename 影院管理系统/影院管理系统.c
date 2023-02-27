@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<conio.h>                       //getch所在头文件
+          
 
 int Login();                            //注册登陆模块             
 void Directory();                       //打印影院功能目录
@@ -30,25 +30,36 @@ int Login()
                 FILE*fp1=fopen("user.txt","w");
                 printf("请输入用户名:");
                 scanf("%s",username);
-                printf("请输入8位密码:");
+                printf("请输入密码(建议8位):");
                 scanf("%s",password);
 
                 fprintf(fp1,"%s %s",username,password);
                 fclose(fp1);
 
                 printf("注册成功！\n");
+
+                system("pause");            //防闪退
+                return 0;
             }else if(choice==2){
                 FILE *fp2=fopen("user.txt","r");
                 printf("请输入用户名:");
                 scanf("%s",username);
-                printf("请输入8位密码:");
+                printf("请输入您的密码:");
+                getchar();         //吸收回车
 
                 char c;
                 int i=0;
-                while((c=getch())!='r'){//密码不回显
-                    password[i]=c;
-                    i++;
-                    printf("*");//密码保护
+                while(1){
+                    system("stty -echo");    //密码不回显
+                    c=getchar();
+                    system("stty -echo");
+                    if(c!='\n'){
+                        password[i]=c;
+                        i++;
+                        printf("*");//密码保护
+                    }else{
+                        break;
+                    }
                 }
                 printf("\n");
                 password[i]='\0';
@@ -56,15 +67,18 @@ int Login()
                 fscanf(fp2,"%s %s",username,password);
 
                 if((strcmp(fusername,username)==0)&&(strcmp(fpassword,password)==0)){
-                    printf("登陆成功！");
+                    printf("登陆成功！\n");
+                    system("pause");              //防止闪退
                     return 1;
                 }else{
-                    printf("用户名或密码错误！");
+                    printf("用户名或密码错误！\n");
+                    system("pause");
                     return 0;
                 }
 
             }
     }
+    printf("\n");
 }
 
 
