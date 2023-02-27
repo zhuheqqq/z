@@ -7,6 +7,20 @@ int Login();                            //注册登陆模块
 void Directory();                       //打印影院功能目录
 
 
+
+typedef struct movie{
+    char name[100];   //电影名
+    double grade;     //豆瓣评分
+    int number;      //一天场次
+    double time;     //时长
+    int hall;       //展厅
+    char publish[100];    //出版公司
+    double price;      //票价
+    char timeline[100][100];    //时间段
+    struct movie*next;
+}Cinema,*List;
+
+
 //用户注册登陆
 int Login()
 {
