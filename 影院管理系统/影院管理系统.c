@@ -18,7 +18,7 @@ typedef struct a
     double price;            // 票价
     char timeline[100][100]; // 时间段
     struct a *next;
-}Link,*Linklist;
+}Linklist;
 
 Linklist head=NULL;
 
@@ -44,7 +44,7 @@ int Login()
             FILE *fp1 = fopen("user.txt", "w");
             printf("请输入用户名:");
             scanf("%s", username);
-            printf("请输入密码(建议8位):");
+            printf("请输入数字密码(建议8位):");
             scanf("%s", password);
 
             fprintf(fp1, "%s %s", username, password);
@@ -52,7 +52,7 @@ int Login()
 
             printf("注册成功！\n");
 
-            system("pause"); // 防闪退
+           system("cls"); // 防闪退
             return 0;
         }
         else if (choice == 2)
@@ -139,12 +139,12 @@ int Choose()
 }
 
 
-// 1.录入电影信息
-Linklist input()
+//1.录入电影信息
+Linklist *input()
 {
     int i, n;
     Link *head = NULL, *node, *end;
-    head = (Link *)malloc(sizeof(Link));
+    head = (Linklist *)malloc(sizeof(Linklist));
     end = head; // 尾插法
     do
     {
@@ -196,51 +196,13 @@ Linklist input()
     return (head);
 }
 
-// 电影查询
-void Search()
+
+
+
+// // 电影查询
+void Search(Linklist *list)
 {
-    Linklist p, q;
-    int flag = 1;
-    char name[100];
-
-    //head=(Linklist)malloc(sizeof(Link));
-
-    p = q = head->next;
-
-    printf("请输入要查询的电影名：");
-    scanf("%s", name);
-    printf("\n");
-
-    while (strcmp(p->name, name))
-    {
-        q = p;
-        p = q->next;
-        if (p == NULL)
-        {
-            printf("查询失败\n");
-            flag = 0;
-            break;
-        }
-    }
-
-    if (flag)
-    {
-        printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
-        printf("-----------------------------------------------------------------\n");
-        printf("-----------------------------------------------------------------\n");
-        printf("%*s\t%.2lf\t\t%d\t\t%.2lf\t\t%d\t\t%.2lf\t\t[1]%s\t\t", -10, p->name, p->grade, p->number, p->time, p->hall, p->price, p->timeline[0]);
-
-        int i;
-        for (i = 1; i < p->number; i++)
-        {
-            printf("\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s\n", i + 1, p->timeline[i]);
-            printf("\n");
-        }
-
-        printf("\n");
-        getchar();
-        system("cls");
-    }
+    
 }
 
 // 修改电影信息
@@ -516,13 +478,16 @@ int main()
     if(Login()==0){
         return 0;
     }
-    input();
+    // input();
+    Creathead();
+    Reload();
     while(1){
         Directory();
         switch(Choose())
         {
             case 1:
-            *input();break;
+            //*input();break;
+            Creat();break;
             case 2:
             Search();break;
             case 3:
