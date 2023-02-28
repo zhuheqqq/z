@@ -7,7 +7,7 @@ void Directory(); // 打印影院功能目录
 int Choose();     // 选择功能函数
 void Search();    // 电影查询
 
-typedef struct movie
+typedef struct a
 {
     char name[100];          // 电影名
     double grade;            // 豆瓣评分
@@ -17,8 +17,10 @@ typedef struct movie
     char publish[100];       // 出版公司
     double price;            // 票价
     char timeline[100][100]; // 时间段
-    struct movie *next;
+    struct a *next;
 }Link,*Linklist;
+
+Linklist head=NULL;
 
 // 用户注册登陆
 int Login()
@@ -117,9 +119,8 @@ void Directory()
     printf("*\t\t4.删除电影信息\t\t\t        *\n");
     printf("*\t\t5.电影信息排序\t\t\t        *\n");
     printf("*\t\t6.显示所有电影信息\t\t        *\n");
-    printf("*\t\t7.添加电影信息\t\t\t        *\n");
-    printf("*\t\t8.保存\t\t\t                *\n");
-    printf("*\t\t9.退出\t\t\t                *\n");
+    printf("*\t\t7.保存\t\t\t                *\n");
+    printf("*\t\t0.退出\t\t\t                *\n");
     printf("*********************************************************\n");
     printf("请选择您需要的功能：");
 }
@@ -128,7 +129,7 @@ int Choose()
 {
     int n;
     printf("请输入您想选择的功能序号：");
-    while (scanf("%d", &n) != 1 || n < 0 || n > 9)
+    while (scanf("%d", &n) != 1 || n < 0 || n > 7)
     {
         printf("\n输入错误,请重新输入:");
         scanf("%d", &n);
@@ -137,16 +138,9 @@ int Choose()
     return n;
 }
 
-int main()
-{
-    Login();
-    Directory();
-
-    return 0;
-}
 
 // 1.录入电影信息
-Link *input()
+Linklist input()
 {
     int i, n;
     Link *head = NULL, *node, *end;
@@ -205,11 +199,11 @@ Link *input()
 // 电影查询
 void Search()
 {
-    Linklist p, q,head;
+    Linklist p, q;
     int flag = 1;
     char name[100];
 
-    head=(Linklist)malloc(sizeof(Linklist));
+    //head=(Linklist)malloc(sizeof(Link));
 
     p = q = head->next;
 
@@ -254,7 +248,7 @@ void Modify()
 {
     int flag = 0;
     char name[100], c;
-    Linklist head=(Linklist)malloc(sizeof(Linklist));
+   // Linklist head=(Linklist)malloc(sizeof(Link));
 
     Linklist a = head->next, b = head;
     getchar(); // 吸收回车
@@ -342,9 +336,9 @@ void Delete()
 {
     char c;
     char name[100];
-    Linklist head;
+    //Linklist head;
 
-    head=(Linklist)malloc(sizeof(Linklist));
+    //head=(Linklist)malloc(sizeof(Link));
 
     Linklist a = head, b = head;
     printf("请输入要删除的电影名：");
@@ -369,9 +363,9 @@ void Delete()
 void Display_all()
 {
     system("cls");
-    Linklist a, b,head;
+    Linklist a, b;
 
-    head=(Linklist)malloc(sizeof(Linklist));
+  //  head=(Linklist)malloc(sizeof(Link));
 
     a = head->next;
     b = head->next;
@@ -414,7 +408,7 @@ void Sort()
     printf("请选择按 1.降序 2.升序排序：");
     scanf("%d",&b);
 
-    Linklist head=(Linklist)malloc(sizeof(Linklist));
+   // Linklist head=(Linklist)malloc(sizeof(Link));
 
     Linklist p=head->next;
     Linklist q=NULL;
@@ -423,7 +417,7 @@ void Sort()
         while(p->next!=q){
             if(a==1&&b==1){
                 if(p->grade<p->next->grade){
-                    Chagedata(p);
+                    Changedata(p);
                 }
             }else if(a==1&&b==2){
                 if(p->grade>p->next->grade){
@@ -490,7 +484,7 @@ void Changedata(Linklist p)
 //保存
 void Save()
 {
-    Linklist head=(Linklist)malloc(sizeof(Linklist));
+   // Linklist head=(Linklist)malloc(sizeof(Linklist));
 
 	if (head->next == NULL)
 	{
@@ -515,5 +509,38 @@ void Save()
 	printf("保存成功");
 	getchar();
 	system("cls");
+}
+
+int main()
+{
+    if(Login()==0){
+        return 0;
+    }
+    input();
+    while(1){
+        Directory();
+        switch(Choose())
+        {
+            case 1:
+            *input();break;
+            case 2:
+            Search();break;
+            case 3:
+            Modify();break;
+            case 4:
+            Delete();break;
+            case 5:
+            Sort();break;
+            case 6:
+            Display_all();break;
+            case 7:
+            Save();break;
+            case 0:
+            return 0;
+
+        }
+    }
+
+
 }
 
