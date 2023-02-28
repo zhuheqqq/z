@@ -405,3 +405,115 @@ void Display_all()
 }
 
 // 排序
+void Sort()
+{
+    int a,b;
+    printf("请选择按 1.评分 2.场次 排序:");
+    scanf("%d",&a);
+
+    printf("请选择按 1.降序 2.升序排序：");
+    scanf("%d",&b);
+
+    Linklist head=(Linklist)malloc(sizeof(Linklist));
+
+    Linklist p=head->next;
+    Linklist q=NULL;
+
+    while(p!=q){
+        while(p->next!=q){
+            if(a==1&&b==1){
+                if(p->grade<p->next->grade){
+                    Chagedata(p);
+                }
+            }else if(a==1&&b==2){
+                if(p->grade>p->next->grade){
+                    Changedata(p);
+                }
+            }else if(a==2&&b==1){
+                if(p->number<p->next->number){
+                    Changedata(p);
+                }
+            }else if(a==2&b==2){
+                if(p->number>p->next->number){
+                    Changedata(p);
+                }
+            }
+            p=p->next;
+        }
+        q=p;
+        p=head->next;
+    }
+
+    printf("排序成功\n");
+    getchar();
+    system("cls");
+}
+
+void Changedata(Linklist p)
+{
+    double ex1 = p->price;
+	p->price = p->next->price;
+	p->next->price = ex1;
+ 
+	double ex2 = p->grade;
+	p->grade = p->next->grade;
+	p->next->grade = ex2;
+ 
+	double ex4 = p->time;
+	p->time = p->next->time;
+	p->next->time = ex4;	
+ 
+	double ex5 = p->hall;
+	p->hall = p->next->hall;
+	p->next->hall = ex5;
+ 
+	char temp[100];
+	strcpy(temp, p->name);
+	strcpy(p->name, p->next->name);
+	strcpy(p->next->name, temp);
+ 
+	char temp2[100][100];
+	int i;
+	for(i=0;i<p->number;i++)
+		strcpy(temp2[i], p->timeline[i]);
+	for(i=0;i<p->next->number;i++)
+		strcpy(p->timeline[i], p->next->timeline[i]);
+	for(i=0;i<p->number;i++)
+		strcpy(p->next->timeline[i], temp2[i]);
+ 
+	int ex3 = p->number;
+	p->number = p->next->number;
+	p->next->number = ex3;
+
+}
+
+//保存
+void Save()
+{
+    Linklist head=(Linklist)malloc(sizeof(Linklist));
+
+	if (head->next == NULL)
+	{
+		printf("未录入信息\n\n");
+		return;
+	}
+	Linklist a=head->next,b=head;
+ 
+	FILE *p=fopen("data.txt","w");
+	while(a!=NULL)
+	{
+		fprintf(p, "%s %.2f %d %.2f %d %.2f ", a->name,a->grade, a->number, a->time, a->hall, a->price);
+		int i;
+		for(i=0;i< a->number;i++)
+			fprintf(p,"%s ",a->timeline[i]);
+		fprintf(p, "\n");
+		b=a;
+		a=a->next;
+	}
+	fclose(p);
+ 
+	printf("保存成功");
+	getchar();
+	system("cls");
+}
+
