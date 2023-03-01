@@ -1,3 +1,4 @@
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -142,7 +143,7 @@ void search(Linklist *list)
 {
 	int n,j;
 	char i[40];
-	Linklist *p=list;
+	Linklist* p=list;
 	printf("1.编号\t2.名称\t3.票价\t4.观看人次\t5.出版公司\t6.编号和票价\n\n");
 	printf("请输入你要查询的项目:");
 	scanf("%d",&n);
@@ -150,8 +151,7 @@ void search(Linklist *list)
 	{
 		case 1:
 			printf("请输入编号:");
-			scanf("%s",i);
-			system("cls");
+			scanf("%s",&i);
 			printf("编号\t名称\t票价\t观看人次\t出版公司\n");
 			while(p!=NULL)
 			{
@@ -165,7 +165,7 @@ void search(Linklist *list)
 			
 		case 2:
 			printf("请输入名称:");
-			scanf("%s",i);
+			scanf("%s",&i);
 			printf("编号\t名称\t票价\t观看人次\t出版公司\n");
 			while(p!=NULL)
 			{

@@ -6,7 +6,7 @@
 typedef struct a{
  
 	char name[100]; //电影名
-	double grade; //评分
+	double grade; //豆瓣评分
 	int number;  //一天场次
 	int time;  //电影时长
 	int	hall; //展厅号
@@ -19,7 +19,7 @@ typedef struct a{
 List head=NULL;
  
 int  Login();    // 登陆
-void Menu();      //   主菜单
+void Directory();      //   主菜单
 int Choose();    //  选择功能
 void Creathead(); // 创建头结点
 void Reload();     //  载入本地文件
@@ -41,7 +41,7 @@ int main()
 	Reload();
 	while (1)
 	{
-		Menu();
+		Directory();
 		switch (Choose())
 		{
 		case 1:
@@ -51,7 +51,7 @@ int main()
 		case 3:
 		    Search();break;   //3.查找某个电影信息 
 		case 4:
-			Modify(); break;  //4.修改电影信息 
+			Change(); break;  //4.修改电影信息 
 		case 6:
 			DisplayAll(); break;  //5.删除所有电影信息 
 		case 5:
@@ -72,8 +72,8 @@ int Login()  //此模块儿是登录模块儿
 	{
 		printf("----------------------------------------------------------\n");
 		printf("*                                                        *\n");
-		printf("*                       1：用户登录                      *\n");
-		printf("*                       2：用户注册                      *\n");
+		printf("*                       1：用户注册                      *\n");
+		printf("*                       2：用户登录                      *\n");
 		printf("*                                                        *\n");
 		printf("----------------------------------------------------------\n");
 		int choose;
@@ -81,25 +81,32 @@ int Login()  //此模块儿是登录模块儿
 		char username[100], password[100];
 		scanf("%d", &choose);
  
- 
- 
-		if (choose == 1)
-		{
-			FILE* f1 = fopen("user.txt", "r");
-			printf("请输入用户名：");
-			scanf("%s", username);
-			getchar();
-			printf("请输入密码：");
-			// char c;
-			// int i = 0;
-			// while ((c = getch()) != '\r')
-			// {
-				
-			// 		password[i] = c;
-			// 		i++;
-			// 		putchar('*');   //简单的密码保护，显示*而不显示密码 
-				
-			// }
+		if (choose== 1)
+        {
+            FILE *fp1 = fopen("user.txt", "w");
+            printf("请输入用户名:");
+            scanf("%s", username);
+            printf("请输入数字密码(建议8位):");
+            scanf("%s", password);
+
+            fprintf(fp1, "%s %s", username, password);
+            fclose(fp1);
+
+            printf("注册成功！\n");
+
+           system("cls"); // 防闪退
+            return 1;
+        }
+        else if (choose== 2)
+        {
+            FILE *fp2 = fopen("user.txt", "r");
+            printf("请输入用户名:");
+            scanf("%s", username);
+            printf("请输入您的密码:");
+            getchar(); // 吸收回车防止对c造成影响
+
+            /*char c[100];
+            c=getpass("Password:");*/
             char c;
             int i = 0;
             while (1)
@@ -116,43 +123,32 @@ int Login()  //此模块儿是登录模块儿
                 {
                     break;
                 }
+            }
+            // password=getpass("Input your passwords:");
+            // printf("%s/r/n",password);
+            printf("\n");
+            password[i] = '\0';
 
-			printf("\n");
-			password[i] = '\0';
- 
-			fscanf(f1, "%s %s", fusername, fpassword);
-			if ((strcmp(fusername, username) == 0) && (strcmp(fpassword, password)) == 0)
-			{
-				printf("登陆成功\n");
-				getchar();
-				system("cls");
-				return 1;
-			}else
-			{
-				printf("用户名或密码错误");
-			    getchar();
-				return 0;
-			}
-		}
-        if (choose == 2)
-		{
-			FILE* f2 = fopen("user.txt", "w");
-			printf("请输入用户名：");
-			scanf("%s", username);
-			printf("请输入密码：");
-			scanf("%s", password);
-			fprintf(f2, "%s %s", username, password);
-			fclose(f2);
-			system("cls");
-			printf("注册成功！\n");
-            system("pause");
-            return 0;
-		}
-	    }
+            fscanf(fp2, "%s %s", fusername, fpassword);//此步正确
+           // printf("%s %s",username,password);
+
+            if ((strcmp(fusername, username) == 0) && (strcmp(fpassword, password) == 0))
+            { // 验证用户名及密码
+                printf("登陆成功！\n");
+                system("cls"); // 防止闪退
+                return 1;
+            }
+            else
+            {
+                printf("用户名或密码错误！\n");
+                system("cls");
+                return 0;
+            }
+        }
     }
 }
  
-void Menu() //进入系统之后的菜单 
+void Directory() //进入系统之后的菜单 
 {
 	printf("\n\n");
 	printf("-----------------------------影院管理系统--------------------------------\n");
@@ -349,7 +345,7 @@ void DeleteAll()
 }
  
  
-void Modify()
+void Change()
 {
 	int flag = 0;
 	char name[100],choose;
