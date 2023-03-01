@@ -12,15 +12,15 @@ typedef struct a
     char name[100];          // 电影名
     double grade;            // 豆瓣评分
     int number;              // 一天场次
-    double time;             // 时长
+    int time;             // 时长
     int hall;                // 展厅
     char publish[100];       // 出版公司
-    double price;            // 票价
+    int price;            // 票价
     char timeline[100][100]; // 时间段
     struct a *next;
 }Linklist;
 
-Linklist head=NULL;
+Linklist *head=NULL;
 
 // 用户注册登陆
 int Login()
@@ -86,7 +86,8 @@ int Login()
             printf("\n");
             password[i] = '\0';
 
-            fscanf(fp2, "%s %s", username, password);
+            fscanf(fp2, "%s %s", fusername, fpassword);//此步正确
+           // printf("%s %s",username,password);
 
             if ((strcmp(fusername, username) == 0) && (strcmp(fpassword, password) == 0))
             { // 验证用户名及密码
@@ -117,9 +118,9 @@ void Directory()
     printf("*\t\t2.查询电影信息\t\t\t        *\n");
     printf("*\t\t3.修改电影信息\t\t\t        *\n");
     printf("*\t\t4.删除电影信息\t\t\t        *\n");
-    printf("*\t\t5.电影信息排序\t\t\t        *\n");
-    printf("*\t\t6.显示所有电影信息\t\t        *\n");
-    printf("*\t\t7.保存\t\t\t                *\n");
+    //printf("*\t\t5.电影信息排序\t\t\t        *\n");
+    printf("*\t\t5.显示所有电影信息\t\t        *\n");
+    printf("*\t\t6.保存\t\t\t                *\n");
     printf("*\t\t0.退出\t\t\t                *\n");
     printf("*********************************************************\n");
     printf("请选择您需要的功能：");
@@ -129,7 +130,7 @@ int Choose()
 {
     int n;
     printf("请输入您想选择的功能序号：");
-    while (scanf("%d", &n) != 1 || n < 0 || n > 7)
+    while (scanf("%d", &n) != 1 || n < 0 || n > 6)
     {
         printf("\n输入错误,请重新输入:");
         scanf("%d", &n);
@@ -143,13 +144,13 @@ int Choose()
 Linklist *input()
 {
     int i, n;
-    Link *head = NULL, *node, *end;
+    Linklist *head , *node, *end;
     head = (Linklist *)malloc(sizeof(Linklist));
     end = head; // 尾插法
     do
     {
-        system("cls");
-        node = (Link *)malloc(sizeof(Link));
+        system("clear");
+        node = (Linklist *)malloc(sizeof(Linklist));
 
         printf("*********************************************************\n");
         printf("*\t\t欢迎进入电影信息录入界面\t\t*\n");
@@ -165,7 +166,7 @@ Linklist *input()
         scanf("%d", &node->number);
 
         printf("*\t\t请录入电影时长\t\t*\n");
-        scanf("%lf", &node->time);
+        scanf("%d", &node->time);
 
         printf("*\t\t请录入电影展厅\t\t*\n");
         scanf("%d", &node->hall);
@@ -174,7 +175,7 @@ Linklist *input()
         scanf("%s", node->publish);
 
         printf("*\t\t请录入电影票价\t\t*\n");
-        scanf("%lf", &node->price);
+        scanf("%d", &node->price);
 
         printf("*\t\t请录入电影时段(xx:xx)\t\t*\n");
         for (i = 0; i < node->number; i++)
@@ -202,310 +203,281 @@ Linklist *input()
 // // 电影查询
 void Search(Linklist *list)
 {
+    int n,i;
+    char con[100];
+    Linklist *p=list;
+    
+    printf("1.名称\t2.评分\t3.出版公司\t4.展厅号\t5.时长\t");
+    printf("请输入你要查询的选项:");
+    scanf("%d",&n);
+
+    switch(n)
+    {
+        case 1:
+        printf("请输入名称:");
+        scanf("%s",con);
+        printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+        while(p!=NULL){
+            if(strcmp(p->name,con)==0)
+            {
+                printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+                int j;
+                for(j=1;j<p->number;j++){
+                    printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                    printf("\n");
+                }
+                getchar();
+            }
+            p=p->next;
+        }
+        break;
+        case 2:
+        printf("请输入评分:");
+        scanf("%d",&i);
+        while(p!=NULL){
+            if(p->grade==i){
+                printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+                printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+                int j;
+                for(j=1;j<p->number;j++){
+                    printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                    printf("\n");
+                }
+                getchar();
+
+            }else{
+                printf("不存在该评分的电影\n");
+            }
+            getchar();
+            p=p->next;
+        }
+        break;
+        case 3:
+        printf("请输入出版公司:");
+        scanf("%s",con);
+        while(p!=NULL){
+            if(p->publish==con){
+                printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+                printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+                int j;
+                for(j=1;j<p->number;j++){
+                    printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                    printf("\n");
+                }
+                getchar();
+
+            }else{
+                printf("不存在公司出版的电影\n");
+            }
+            getchar();
+            p=p->next;
+        }
+        case 4:
+        printf("请输入展厅号:");
+        scanf("%d",&i);
+        while(p!=NULL){
+            if(p->hall==i){
+                printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+                printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+                int j;
+                for(j=1;j<p->number;j++){
+                    printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                    printf("\n");
+                }
+                getchar();
+
+            }else{
+                printf("该展厅没有电影待播放\n");
+            }
+            getchar();
+            p=p->next;
+        }
+        case 5:
+        printf("请输入时长:");
+        scanf("%d",&i);
+        while(p!=NULL){
+            if(p->time==i){
+                printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+                printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+                int j;
+                for(j=1;j<p->number;j++){
+                    printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                    printf("\n");
+                }
+                getchar();
+
+            }else{
+                printf("不存在该时长的电影\n");
+            }
+            getchar();
+            p=p->next;
+        }
+    }
     
 }
 
 // 修改电影信息
-void Modify()
+void Modify(Linklist *list)
 {
-    int flag = 0;
-    char name[100], c;
-   // Linklist head=(Linklist)malloc(sizeof(Link));
-
-    Linklist a = head->next, b = head;
-    getchar(); // 吸收回车
-    printf("请输入要修改的电影名：");
-    scanf("%s", name);
-    getchar();
-
-    while (a != NULL)
+    int i,n;
+    char ch[100];
+    Linklist *p=list;
+    printf("1.评分\t2.票价\n");
+    printf("请输入你要修改的项目:");
+    scanf("%d",&n);
+    switch(n)
     {
-        if (strcmp(a->name, name) == 0)
-        {
-            flag = 1;
+        case 1:
+            printf("请输入要修改评分的电影名称:");
+            scanf("%s",ch);
+            while(p!=NULL)
+            {
+                if(strcmp(p->name,ch)==0)
+                {
+                    printf("请输入想修改的评分为:");
+                    scanf("%lf",&p->grade);
+                    printf("---------------【修改完成】--------------\n");
+                }
+                p=p->next;
+            }
             break;
-        }
-        b = a;
-        a = b->next;
+
+        case 2:
+            printf("请输入要修改的电影名称:");
+			scanf("%s",ch);
+			while(p!=NULL)
+			{
+				if(p->name==ch)
+				{
+					printf("输入想修改的票价:");
+					scanf("%d",&p->price);
+					printf("---------------【修改完成】--------------\n");
+				}
+				p=p->next;
+			}
+			break;
+
     }
-    if (flag)
-    {
-        printf("%s是否修改(y/n)", a->name);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为:");
-            scanf("%s", a->name);
-        }
-        printf("电影评分为 %.2f 是否修改 (y/n)", a->grade);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为：");
-            scanf("%.2f", &a->grade);
-        }
 
-        printf("电影一天场数为 %d 是否修改(y/n)", a->number);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为：");
-            scanf("%d", &a->number);
-        }
-
-        printf("电影时长为 %.2fmin 是否修改(y/n)", a->time);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为：");
-            scanf("%lf", &a->time);
-        }
-
-        printf("展厅号为 %d 是否修改(y/n)", a->hall);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为：");
-            scanf("%d", &a->hall);
-        }
-
-        printf("票价为 %.2f 是否修改(y/n)", a->price);
-        scanf("%c", &c);
-        getchar();
-        if (c == 'y')
-        {
-            printf("修改为：");
-            scanf("%lf", &a->price);
-        }
-
-        printf("修改完成");
-    }
-    else
-    {
-        printf("发生错误\n");
-    }
-    getchar();
-    system("cls"); // 清屏
-}
+}   
 
 // 删除信息
-void Delete()
+void Delete(Linklist *list)
 {
-    char c;
-    char name[100];
-    //Linklist head;
-
-    //head=(Linklist)malloc(sizeof(Link));
-
-    Linklist a = head, b = head;
-    printf("请输入要删除的电影名：");
-    scanf("%s", name);
-
-    while (strcmp(a->name, name))
+   int n;
+   char ch[100];
+   Linklist *p,*q=list;
+   p=q->next;
+   printf("请输入1进行删除操作:");
+   scanf("%d",&n);
+   switch(n)
+   {
+    case 1:
+    printf("请输入要删除的电影名称:");
+    scanf("%s",ch);
+    while(p!=NULL)
     {
-        b = a;
-        a = b->next;
-    }
-    printf("确认删除电影%s(y/n)", a->name);
-    getchar();
-    scanf("%c", &c);
-    if (c == 'y')
-    {
-        b->next = a->next;
-        free(a);
-    }
-}
-
-// 显示所有电影信息
-void Display_all()
-{
-    system("cls");
-    Linklist a, b;
-
-  //  head=(Linklist)malloc(sizeof(Link));
-
-    a = head->next;
-    b = head->next;
-
-    if (head->next = NULL)
-    {
-        printf("无数据");
-        getchar();
-        getchar();
-        system("cls");
-        return;
-    }
-
-    printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
-    printf("---------------------------------------------------------");
-    printf("---------------------------------------------------\n");
-
-    while (a != NULL)
-    {
-        printf("%*s\t%.2f\t\t%d\t\t%.2f\t\t%d\t\t%.2f\t\t[1]%s\n", -10, a->name, a->grade, a->number, a->time, a->hall, a->price, a->timeline[0]);
-        int i;
-        for (i = 1; i < a->number; i++)
-            printf("\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s\n", i + 1, a->timeline[i]);
-        printf("\n");
-        b = a;
-        a = b->next;
-    }
-    getchar();
-    getchar();
-    system("cls");
-}
-
-// 排序
-void Sort()
-{
-    int a,b;
-    printf("请选择按 1.评分 2.场次 排序:");
-    scanf("%d",&a);
-
-    printf("请选择按 1.降序 2.升序排序：");
-    scanf("%d",&b);
-
-   // Linklist head=(Linklist)malloc(sizeof(Link));
-
-    Linklist p=head->next;
-    Linklist q=NULL;
-
-    while(p!=q){
-        while(p->next!=q){
-            if(a==1&&b==1){
-                if(p->grade<p->next->grade){
-                    Changedata(p);
-                }
-            }else if(a==1&&b==2){
-                if(p->grade>p->next->grade){
-                    Changedata(p);
-                }
-            }else if(a==2&&b==1){
-                if(p->number<p->next->number){
-                    Changedata(p);
-                }
-            }else if(a==2&b==2){
-                if(p->number>p->next->number){
-                    Changedata(p);
-                }
+        if(strcmp(p->name,ch)==0)
+        {
+            printf("-----------------------------------------【以下是你要删除的电影信息】----------------------------------------\n");
+            printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+             int j;
+            for(j=1;j<p->number;j++){
+                printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+                printf("\n");
             }
-            p=p->next;
+            q->next=p->next;
+            free(p);
+            printf("-----------------------------------------【已经安全删除】--------------------------------------------------\n");
         }
         q=p;
-        p=head->next;
+        p=p->next;
     }
-
-    printf("排序成功\n");
-    getchar();
-    system("cls");
+    break;
+    default:
+    printf("-------------------------【输入非法！请重新输入】-------------------------------\n");
+    break;
+   }
 }
 
-void Changedata(Linklist p)
+//浏览电影信息
+void Display_all(Linklist *list)
 {
-    double ex1 = p->price;
-	p->price = p->next->price;
-	p->next->price = ex1;
- 
-	double ex2 = p->grade;
-	p->grade = p->next->grade;
-	p->next->grade = ex2;
- 
-	double ex4 = p->time;
-	p->time = p->next->time;
-	p->next->time = ex4;	
- 
-	double ex5 = p->hall;
-	p->hall = p->next->hall;
-	p->next->hall = ex5;
- 
-	char temp[100];
-	strcpy(temp, p->name);
-	strcpy(p->name, p->next->name);
-	strcpy(p->next->name, temp);
- 
-	char temp2[100][100];
-	int i;
-	for(i=0;i<p->number;i++)
-		strcpy(temp2[i], p->timeline[i]);
-	for(i=0;i<p->next->number;i++)
-		strcpy(p->timeline[i], p->next->timeline[i]);
-	for(i=0;i<p->number;i++)
-		strcpy(p->next->timeline[i], temp2[i]);
- 
-	int ex3 = p->number;
-	p->number = p->next->number;
-	p->next->number = ex3;
-
+    Linklist *p=list->next;
+    system("clear");  //清屏
+    printf("******************************************************************************\n");
+    printf("*\t\t   影院影片列表     \t\t\t*\n");
+    printf("******************************************************************************\n");
+    printf("名称\t\t票价\t\t评分\t\t场次\t\t出版公司\t\t展厅号\t\t时长\t\t时间段\n");
+    while(p)
+    {
+        printf("%*s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+         int j;
+        for(j=1;j<p->number;j++){
+            printf("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+            printf("\n");
+        }
+        p=p->next;
+    }
+    printf("******************************************************************************\n");
 }
+
+
 
 //保存
 void Save()
 {
-   // Linklist head=(Linklist)malloc(sizeof(Linklist));
-
-	if (head->next == NULL)
+    Linklist *p;
+	FILE *fp;
+	char name[40];
+	printf("\n请输入要保存的文件名:");
+	scanf("%s",name);
+	if((fp=fopen(name,"wt"))==NULL)
 	{
-		printf("未录入信息\n\n");
-		return;
+		printf("写文件出错，按任意键退出！");
+		getchar();
+		exit(1);
 	}
-	Linklist a=head->next,b=head;
- 
-	FILE *p=fopen("data.txt","w");
-	while(a!=NULL)
+	for(p=list->next;p!=NULL;p=p->next)
 	{
-		fprintf(p, "%s %.2f %d %.2f %d %.2f ", a->name,a->grade, a->number, a->time, a->hall, a->price);
-		int i;
-		for(i=0;i< a->number;i++)
-			fprintf(p,"%s ",a->timeline[i]);
-		fprintf(p, "\n");
-		b=a;
-		a=a->next;
+		fprintf(fp,"%s\t%d\t\t%.2f\t\t%d\t\t%s\t\t%d\t\t%d\t\t[1]%s\n",-10,p->name,p->price,p->grade,p->number,p->publish,p->hall,p->time,p->timeline[0]);
+         int j;
+        for(j=1;j<p->number;j++){
+            fprintf(fp,"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s",j,p->timeline[j]);
+            printf("\n");
+        }
 	}
-	fclose(p);
- 
-	printf("保存成功");
+	printf("\n文件已成功保存,按任意键返回！\n");
 	getchar();
-	system("cls");
+	fclose(fp);
+}
+
+//文件读写
+Linklist *read()
+{
+    Linklist *ghead,*r,*p;
+    FILE *fp;
+    char name[100];
+    printf("\n请输入要打开的文件:");
+    scanf("%s",name);
+    if((fp=fopen(name,"rt"))==NULL)
+    {
+        printf("\n文件读写出错,按任意键退出!\n");
+        printf("请创建链表\n");
+        system("read");
+        return 0;
+    }
+    ghead=(Linklist *)malloc(sizeof(Linklist));
+    ghead->next=NULL;
+    r=ghead;
+    while(!feof(fp))
+    {
+        p=(Linklist *)malloc(sizeof(Linklist));
+    }
 }
 
 int main()
 {
-    if(Login()==0){
-        return 0;
-    }
-    // input();
-    Creathead();
-    Reload();
-    while(1){
-        Directory();
-        switch(Choose())
-        {
-            case 1:
-            //*input();break;
-            Creat();break;
-            case 2:
-            Search();break;
-            case 3:
-            Modify();break;
-            case 4:
-            Delete();break;
-            case 5:
-            Sort();break;
-            case 6:
-            Display_all();break;
-            case 7:
-            Save();break;
-            case 0:
-            return 0;
-
-        }
-    }
-
-
+   // Login();
 }
 
