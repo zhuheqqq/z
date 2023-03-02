@@ -37,8 +37,8 @@ void Save();       //  保存
 int main()
 {
 	if(Login()==0) return 0;
-	Creathead();
-	Reload();
+	Creathead();//创建链表并初始化
+	Reload();//录入登录信息
 	while (1)
 	{
 		Directory();
@@ -51,11 +51,11 @@ int main()
 		case 3:
 		    Search();break;   //3.查找某个电影信息 
 		case 4:
-			Change(); break;  //4.修改电影信息 
-		case 6:
-			DisplayAll(); break;  //5.删除所有电影信息 
+			Modify(); break;  //4.修改电影信息 
 		case 5:
-			DeleteAll(); break;  //6.显示所有电影信息 
+			DeleteAll(); break;  //5.删除所有电影信息 
+		case 6:
+			DisplayAll(); break;  //6.显示所有电影信息 
 		case 7:
 			Sort(); break;  //7.排序 
 		case 8:
@@ -76,6 +76,7 @@ int Login()  //此模块儿是登录模块儿
 		printf("*                       2：用户登录                      *\n");
 		printf("*                                                        *\n");
 		printf("----------------------------------------------------------\n");
+		printf("请输入您的选项:");
 		int choose;
 		char fusername[100], fpassword[100];
 		char username[100], password[100];
@@ -83,7 +84,8 @@ int Login()  //此模块儿是登录模块儿
  
 		if (choose== 1)
         {
-            FILE *fp1 = fopen("user.txt", "w");
+            FILE *fp1 = fopen("user.txt", "w");//以只写方式每次都会清空之前的信息 no！
+			//换成a试试 no!加到文件尾，破坏原本密码
             printf("请输入用户名:");
             scanf("%s", username);
             printf("请输入数字密码(建议8位):");
@@ -157,7 +159,7 @@ void Directory() //进入系统之后的菜单
     printf("---------------------------------------------------------\n");
     printf("*\t\t1.添加电影信息\t\t\t        *\n");
     printf("*\t\t2.删除电影信息\t\t\t        *\n");
-    printf("*\t\t3.修改电影信息\t\t\t        *\n");
+    printf("*\t\t3.查找某个电影信息\t\t\t        *\n");
     printf("*\t\t4.修改电影信息\t\t\t        *\n");
     printf("*\t\t5.删除所有电影信息\t\t        *\n");
     printf("*\t\t6.显示所有电影信息\t\t        *\n");
@@ -208,7 +210,7 @@ void Reload()   //载入函数，登录成功时，自动把信息载入内存�
 		printf("fail to open file.\n");
 	}
  
-	while(fscanf(p, "%s%lf%d%d%d%lf",name,&grade,&number,&time,&hall,&price)==6)
+	while(fscanf(p, "%s%lf%d%d%d%lf",name,&grade,&number,&time,&hall,&price)==6)//从p指向的文件中读数据并存在name等中
 	{
 		printf("成功！");
 		List a = (List)malloc(sizeof(Cinema));
@@ -239,7 +241,7 @@ void Reload()   //载入函数，登录成功时，自动把信息载入内存�
  
 }
  
-void Creathead()
+void Creathead()//初始化函数
 {
 	List a=(List)malloc(sizeof(Cinema));
  
@@ -332,19 +334,26 @@ void Delete()
 	List a=head,b=head;
 	printf("输入要删除的电影名： ");
 	scanf("%s",name);
-	while(strcmp(a->name, name))
+	while(a!=NULL&&strcmp(a->name, name))//这步特别注意换位置不行！
 	{
 		b=a;
 		a = b->next;
 	}
-	printf("确认删除电影 %s (y/n)",a->name);
-	getchar();
-	scanf("%c",&choose);
-	if(choose=='y')
-	{
-		b->next=a->next;
-		free(a);
+	if(a==NULL){
+		printf("不存在此电影！\n");
+	}else if(strcmp(a->name,name)==0){
+		printf("确认删除电影 %s (y/n)",a->name);
+		getchar();
+		scanf("%c",&choose);
+		if(choose=='y')
+		{
+			b->next=a->next;
+			free(a);
+		}
+		printf("-------------------删除成功---------------------");
 	}
+
+	
 }
  
 void DeleteAll()
@@ -362,7 +371,7 @@ void DeleteAll()
 }
  
  
-void Change()
+void Modify()
 {
 	int flag = 0;
 	char name[100],choose;
@@ -477,9 +486,11 @@ void DisplayAll()
 		b = a;
 		a = b->next;
 	}	
+	printf("------------------------------------------请按回车键回到主菜单-------------------------------------------\n");
 	getchar();
 	getchar();
 	system("cls");
+	system("clear");  //清屏
 }
  
 void Sort()
@@ -487,7 +498,7 @@ void Sort()
 	int a,b;
 	printf("请选择按 1.评分 2.场次 排序 :");
 	scanf("%d",&a);
-	printf("请选择 1.降序 2.升序 :");
+	printf("请选择 1.降序 2.升序 排序:");
 	scanf("%d",&b);
  
 	List p = head->next;
@@ -537,6 +548,9 @@ void Sort()
 	}
  
 	printf("排序成功\n\n");
+	getchar();
+	printf("----------请到显示信息栏(菜单6)查看排序结果-------------\n");
+	printf("------------------按回车键回到主菜单------------------\n");
 	getchar();
 	system("cls");
 	
@@ -601,7 +615,7 @@ void Save()
 	}
 	fclose(p);
  
-	printf("保存成功");
+	printf("--------------------保存成功------------------\n");
 	getchar();
 	system("cls");
 
