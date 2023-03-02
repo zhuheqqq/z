@@ -70,9 +70,9 @@ int Login()
             int i = 0;
             while (1)
             {
-               // system("stty -echo"); // 密码不回显
+                system("stty -echo"); // 密码不回显
                 c = getchar();
-                //system("stty -echo"); // getch平替
+                system("stty echo"); // getch平替
                 if (c != '\n')
                 {
                     password[i] = c;
@@ -116,13 +116,14 @@ void Directory()
     printf("*********************************************************\n");
     printf("*\t\t   功能展示如下\t\t\t        *\n");
     printf("---------------------------------------------------------\n");
-    printf("*\t\t1.录入电影信息\t\t\t        *\n");
-    printf("*\t\t2.查询电影信息\t\t\t        *\n");
+    printf("*\t\t1.添加电影信息\t\t\t        *\n");
+    printf("*\t\t2.删除电影信息\t\t\t        *\n");
     printf("*\t\t3.修改电影信息\t\t\t        *\n");
-    printf("*\t\t4.删除电影信息\t\t\t        *\n");
-    //printf("*\t\t5.电影信息排序\t\t\t        *\n");
-    printf("*\t\t5.显示所有电影信息\t\t        *\n");
-    printf("*\t\t6.保存\t\t\t                *\n");
+    printf("*\t\t4.修改电影信息\t\t\t        *\n");
+    printf("*\t\t5.删除所有电影信息\t\t\t        *\n");
+    printf("*\t\t6.显示所有电影信息\t\t        *\n");
+    printf("*\t\t7.排序\t\t\t                *\n");
+    printf("*\t\t8.保存\t\t\t                *\n");
     printf("*\t\t0.退出\t\t\t                *\n");
     printf("*********************************************************\n");
     printf("请选择您需要的功能：");
