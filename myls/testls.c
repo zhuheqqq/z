@@ -36,7 +36,7 @@ void my_err(const char *err,int line)
 {
 	fprintf(stderr,"line:%d ",line);
 	perror(err);//打印错误原因
-	if(errno!=13)
+	if(errno!=13)//13代表无权限
 	{
 		exit(0);
 	}else{
@@ -59,7 +59,7 @@ int cmp(const void *_a,const void *_b)
 {
     char *a=(char*)_a;
     char *b=(char*)_b;//强制类型转换
-    return strcmp(a,b);//返回差值
+    return strcmp(a,b);//返回差值，标准cmp写法，是快排函数的一部分
 }
 
 void ls_l(struct stat statres,char *name,int color)
@@ -92,7 +92,7 @@ void ls_l(struct stat statres,char *name,int color)
 /*	else
 		return '?';*/
 
-	if(statres.st_mode&S_IRUSR)
+	if(statres.st_mode&S_IRUSR)//所有者权限
 		printf("r");
 	else
 		printf("-");
@@ -106,7 +106,7 @@ void ls_l(struct stat statres,char *name,int color)
 		printf("-");
 
 
-	if(statres.st_mode&S_IRUSR)
+	if(statres.st_mode&S_IRUSR)//组用户权限
 		printf("r");
 	else
 		printf("-");
@@ -120,7 +120,7 @@ void ls_l(struct stat statres,char *name,int color)
 		printf("-");
 
 
-	if(statres.st_mode&S_IRUSR)
+	if(statres.st_mode&S_IRUSR)//其他用户组权限
 		printf("r");
 	else
 		printf("-");
@@ -140,12 +140,12 @@ void ls_l(struct stat statres,char *name,int color)
 	psd=getpwuid(statres.st_uid);
 	grp=getgrgid(statres.st_gid);
 
-	printf("%ld ",statres.st_nlink);
-	printf("%-8s ",psd->pw_name);
-	printf("%-8s",grp->gr_name);
-	printf("%6ld",statres.st_size);
+	printf("%ld ",statres.st_nlink);//硬链接数
+	printf("%-8s ",psd->pw_name);//uid用户信息
+	printf("%-8s",grp->gr_name);//gid组信息
+	printf("%11ld",statres.st_size);//文件大小
 
-	strcpy(statres_time,ctime(&statres.st_mtime));
+	strcpy(statres_time,ctime(&statres.st_mtime));//时间
 	statres_time[strlen(statres_time)-1]='\0';
 	printf("  %s",statres_time);
 
@@ -193,7 +193,7 @@ void ls_i(char *name,int color)
 		my_err("lstat",__LINE__);
 	}
 
-	printf("%ld",statres.st_ino);
+	printf("%-20ld",statres.st_ino);//文件i结点号
 
 	len=strlen(name);
 	len=g_maxlen-len;
@@ -209,7 +209,7 @@ void ls_i(char *name,int color)
 
 void ls_s(char *name,int color)
 {
-/*	struct stat statres;
+	struct stat statres;
 	if(lstat(name,&statres)==-1)
 	{
 		my_err("lstat",__LINE__);
@@ -220,14 +220,14 @@ void ls_s(char *name,int color)
 	{
 		printf("\n");
 		g_linelen=MAX;
-	}
+	}*/
 	if(g_linelen<g_maxlen)
         {
                 printf("\n");
                 g_linelen=MAX;
         }
 
-          printf("%3ld",statres.st_blocks/2);
+          printf("%7ld",statres.st_blocks/2);
 
 
         len=strlen(name);
@@ -237,17 +237,9 @@ void ls_s(char *name,int color)
 
         for(i=0;i<len;i++)
                 printf(" ");
-*/
+
 	
-	//color_print(name,color);
-	struct stat info;
-           if(stat(name,&info)==-1)
-             perror(name);
-             long long size=info.st_size/1024;                              
-               if(size<=4)           
-                  printf("4   ");                
-               else         
-                  printf("%-4lld",size);   
+	  
 }
 
 
@@ -269,16 +261,17 @@ if(chdir(name)<0)                              //将输入的目录改为当前�
                 return;
               }
               else if(strncmp(name,"/proc",4)==0)
-                 { printf("this is a /proc file\n");
+                 { printf("this is a /proc file\n");//无权限
                    return;
                  }
             else 
              my_err("lstat",__LINE__);
           }
 }
-if(getcwd(name_dir,10000)<0){
+if(getcwd(name_dir,10000)<0){//getcwd将当前目录的绝对路径复制到name_dir
   my_err("getcwd",__LINE__);                   //获取当前目录的绝对路径（重要，下面的打开目录的操作需要这个路径，否则需要手动添加）
-}
+}//拼接目录获取绝对路径
+ //绝对路径是一个文件实际存在与硬盘的位置，相对路径是与自身的目标档案相关的位置
  printf("%s:\n",name_dir);
  
  dir = opendir(name_dir);     //用新获得的路径打开目录
@@ -328,7 +321,7 @@ for(i=0;i<count;i++)
                 return;
               }
               else if(strncmp(filenames[i],"/proc",4)==0)
-                 { printf("this is a /proc file\n");
+                 { printf("this is a /proc file\n");//无权限
                    return;
                  }
             else 
@@ -338,8 +331,8 @@ for(i=0;i<count;i++)
           continue;
           if(filenames[i][0]=='.')
           continue;
-          if(S_ISDIR(buf.st_mode)){
-            int h=0;
+          if(S_ISDIR(buf.st_mode)){//S_ISDIR判断是否是目录
+            int h=0;//opendir打开目录用绝对路径否则无法定位，readdir读，closedir关闭目录
             g_linelen=MAX;
             ls_R(filenames[i],flag);
           }
@@ -544,16 +537,16 @@ void dir_print(int flag,char*path)
     }
     while((ptr=readdir(dir))!=NULL)
      {
-         int hanzi=0;
-         int nohanzi=0;
+         int k=0;
+         int q=0;
          for(int i=0;i<strlen(ptr->d_name);i++)
           {    
               if(ptr->d_name[i]<0)
-              hanzi++;
+              k++;
               else
-              nohanzi++;
+              q++;
           }
-        int len=hanzi*2+nohanzi;
+        int len=k*2+q;
         if(g_maxlen<len)
         g_maxlen=len;
  
@@ -572,7 +565,7 @@ void dir_print(int flag,char*path)
               my_err("readdir",__LINE__);
           }
  
-         strncpy(filename[i],path,strlen(path));
+         strncpy(filename[i],path,strlen(path));//将path里的字符串以path开始的前strlen（path）个字节复制到filename的数组里，并返回filename
          filename[i][strlen(path)]='\0';
          strcat(filename[i],ptr->d_name);
          filename[i][strlen(path)+strlen(ptr->d_name)]='\0';
@@ -610,8 +603,7 @@ void dir_print(int flag,char*path)
               qsort(filename,cnt,sizeof(filename[0]),cmp);//快排函数，第一个参数是地址（参与排序的首地址），第二个是需要排序的数量，第三个是每一个元素占用的空间，cmp为函数          
  
          }
-           //for(int i=0;i<cnt;i++)
-            //printf("%d %s\n",i,filename[i]);
+         
           int total=0;
          //计算总量
           if(flag&PARAM_A)   //包括隐藏文件
@@ -644,7 +636,7 @@ void dir_print(int flag,char*path)
             }
  
  
-            if(flag&PARAM_r)
+            if(flag&PARAM_r)//判断有无-r参数，利用位运算
               {    flag-=PARAM_r;
                   if(flag&PARAM_R)  
                     {       flag-=PARAM_R;
@@ -708,14 +700,12 @@ if(S_ISDIR(statres.st_mode))
     color=BLUE;
 if((statres.st_mode&S_IXUSR)&&color!=BLUE)
     color=GREEN;
-if(flag&PARAM_R)
+    if(flag&PARAM_R)
     flag-=PARAM_R;
-if(flag&PARAM_r)
+if(flag&PARAM_r)//作用同上
     flag-=PARAM_r;
 if(flag&PARAM_T)
     flag-=PARAM_T;
-if(flag&PARAM_S)
-    flag-=PARAM_S;
 
 switch(flag)
 {
@@ -739,12 +729,12 @@ switch(flag)
     case PARAM_I+PARAM_L://-il
         if(name[0]!='.')
         {
-            printf(" %ld",statres.st_ino);
+            printf("%-15ld",statres.st_ino);
             ls_l(statres,name,color);
 	}
         break;
     case PARAM_L+PARAM_A+PARAM_I://-lai
-         printf("%ld ",statres.st_ino);
+         printf("%-15ld",statres.st_ino);
 	 ls_l(statres,name,color);
          break;
     case PARAM_I://-i
@@ -757,13 +747,13 @@ switch(flag)
         break;
     case PARAM_I+PARAM_S://-si
 	if(name[0]='.'){
-		printf(" %ld",statres.st_ino);
+		printf("%-15ld",statres.st_ino);
 		ls_s(name,color);
 	}
 	break;
      case PARAM_L+PARAM_S://-sl
 	if(name[0]='.'){
-		printf(" %ld",statres.st_ino);
+		printf("%-15ld",statres.st_ino);
 		ls_l(statres,name,color);
 	}
 	break;
@@ -775,13 +765,13 @@ switch(flag)
 	}
 	break;*/
      case PARAM_L+PARAM_S+PARAM_A://-asl
-	printf(" %ld",statres.st_blocks/2);
+	printf("%-7ld",statres.st_blocks/2);
 	ls_l(statres,name,color);
 	break;
      case PARAM_I+PARAM_S+PARAM_L://-isl
 	if(name[0]='.'){
-		printf(" %ld",statres.st_ino);
-		printf(" %ld",statres.st_blocks);
+		printf("%-15ld",statres.st_ino);
+		printf("%-7ld",statres.st_blocks/2);
 		ls_l(statres,name,color);
 	}
 	break;
@@ -789,12 +779,12 @@ switch(flag)
 	ls_s(name,color);
 	break;
      case PARAM_I+PARAM_S+PARAM_A:
-	printf(" %ld",statres.st_ino);
+	printf("%-15ld",statres.st_ino);
 	ls_s(name,color);
 	break;
      case PARAM_I+PARAM_A+PARAM_L+PARAM_S:
-	printf(" %ld",statres.st_ino);
-	printf(" %ld",statres.st_blocks/2);
+	printf("%-15ld",statres.st_ino);
+	printf("%-7ld",statres.st_blocks/2);
 	ls_l(statres,name,color);
 	break;
     default:
@@ -874,7 +864,7 @@ int main(int argc, char *argv[])
             i++;
             continue;
         } else {
-            //得到具体路径
+            //得到具体路径，修改为绝对路径
             strcpy(path, argv[i]);
             if(stat(path,&statres) == -1)
                 my_err("stat",__LINE__);

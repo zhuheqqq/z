@@ -115,12 +115,12 @@ int Login()  //此模块儿是登录模块儿
             {
                 system("stty -echo"); // 密码不回显
                 c = getchar();
+				printf("*"); // 密码保护
                 system("stty echo"); // getch平替
                 if (c != '\n')
                 {
                     password[i] = c;
                     i++;
-                    printf("*"); // 密码保护
                 }else
                 {
                     break;
@@ -159,7 +159,7 @@ void Directory() //进入系统之后的菜单
     printf("---------------------------------------------------------\n");
     printf("*\t\t1.添加电影信息\t\t\t        *\n");
     printf("*\t\t2.删除电影信息\t\t\t        *\n");
-    printf("*\t\t3.查找某个电影信息\t\t\t        *\n");
+    printf("*\t\t3.查询某个电影信息\t\t        *\n");
     printf("*\t\t4.修改电影信息\t\t\t        *\n");
     printf("*\t\t5.删除所有电影信息\t\t        *\n");
     printf("*\t\t6.显示所有电影信息\t\t        *\n");
@@ -264,9 +264,9 @@ void Creat() //创建电影信息，菜单中的1功能
  
 	printf("请输入电影名：  ");
 	scanf("%s", a->name);
-	printf("请输入电影评分： ");
+	printf("请输入电影评分（可为小数）： ");
 	scanf("%lf",&a->grade);
-	printf("请输入电影时长：(单位min)  ");
+	printf("请输入电影时长：(单位min)（整数）  ");
 	scanf("%d", &a->time);
 	printf("请输展厅号：  ");
 	scanf("%d", &a->hall);
@@ -275,7 +275,7 @@ void Creat() //创建电影信息，菜单中的1功能
 	
 	printf("请输入一天共几场：  ");
 	scanf("%d", &a->number);
-	printf("请输入电影上映时间段：(xx:xx)  ");
+	printf("请输入电影上映时间段：(xx:xx)（24进制）  ");
 	int i;
 	for(i=0;i< a->number;i++)
 		scanf("%s", a->timeline[i]);
@@ -304,7 +304,8 @@ void Search()  //查询电影信息
 		a=b->next;
 		if (a== NULL)
 		{
-			printf("查找失败\n\n");
+			printf("---------------------------------查找失败-----------------------------------\n\n");
+			printf("-----------------------------请按回车键回到主菜单-----------------------\n")
 			flag = 0;
 			break; 
 		}
@@ -312,10 +313,10 @@ void Search()  //查询电影信息
     if(flag)
 	{
 	printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
-	printf("---------------------------------------------------------");
+	printf("----------------------------------------------------------------");
 	printf("---------------------------------------------------\n");
  
-	printf("%*s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",-10,a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
+	printf("%-18s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
 	int i;
 	for(i=1;i<a->number;i++)
 		printf("\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s\n",i+1,a->timeline[i]);
@@ -350,7 +351,7 @@ void Delete()
 			b->next=a->next;
 			free(a);
 		}
-		printf("-------------------删除成功---------------------");
+		printf("------------按回车键返回主菜单保存即可删除成功------------\n");
 	}
 
 	
@@ -368,6 +369,7 @@ void DeleteAll()
 	}
 	head->next = NULL;
 	remove("data");
+	printf("--------------按回车键返回主菜单保存即可删除所有内容------------\n");
 }
  
  
@@ -447,7 +449,7 @@ void Modify()
 			scanf("%lf", &a->price);
 		}
  
-		printf("修改完成");
+		printf("-----------------------修改完成----------------------\n");
 	}
 	else
 		printf("未找到\n\n");
@@ -473,12 +475,12 @@ void DisplayAll()
 	}
 		
 	printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
+
 	printf("---------------------------------------------------------");
 	printf("---------------------------------------------------\n");
- 
 	while (a!=NULL)
 	{
-		printf("%*s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",-10,a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
+		printf("%-18s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
 		int i;
 		for(i=1;i<a->number;i++)
 			printf("\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s\n",i+1,a->timeline[i]);
@@ -486,7 +488,7 @@ void DisplayAll()
 		b = a;
 		a = b->next;
 	}	
-	printf("------------------------------------------请按回车键回到主菜单-------------------------------------------\n");
+	printf("--------------------------------------------请按回车键回到主菜单---------------------------------------------\n");
 	getchar();
 	getchar();
 	system("cls");
@@ -615,7 +617,7 @@ void Save()
 	}
 	fclose(p);
  
-	printf("--------------------保存成功------------------\n");
+	printf("-------------------------保存成功-----------------------\n");
 	getchar();
 	system("cls");
 
