@@ -637,13 +637,13 @@ void dir_print(int flag,char*path)
  
  
             if(flag&PARAM_r)//判断有无-r参数，利用位运算
-              {    flag-=PARAM_r;
+              { //   flag-=PARAM_r;
                   if(flag&PARAM_R)  
                     {       flag-=PARAM_R;
                             ls_R(path,flag);
                     }
                     else
-                     {    
+                     {   flag-=PARAM_r; 
                          for(int i=cnt-1;i>=0;i--)
                            {  
                            print(flag,filename[i]);
@@ -665,6 +665,12 @@ void dir_print(int flag,char*path)
                        }
  
              }
+	   /* for(int i=0;i<cnt+1;i++)
+    {
+      free(filename[i]);
+    }
+    free(filename);
+*/
  
 }
 
