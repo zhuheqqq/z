@@ -245,7 +245,7 @@ void ls_s(char *name,int color)
 
 
 
-void ls_R(char*name,int flag)  
+int ls_R(char*name,int flag)  
  
 {
 DIR * dir;
@@ -253,31 +253,39 @@ struct dirent  *ptr;
 int     i,count = 0;
 struct stat buf;
 char name_dir[10000];
-if(chdir(name)<0)                              //将输入的目录改为当前目录，下面操作的前提
+if(chdir(name)<0)       //无权限，跳过                       //将输入的目录改为当前目录，下面操作的前提
 { 
-    if(lstat(name,&buf)==-1)
-          {  if(errno==13)
-              { printf("Permission denied\n");
-                return;
-              }
-              else if(strncmp(name,"/proc",4)==0)
-                 { printf("this is a /proc file\n");//无权限
-                   return;
-                 }
-            else 
-             my_err("lstat",__LINE__);
-          }
+    
+    if(errno==13){//定位错误原因，指文件拒绝访问许可
+        errno=0;
+        printf("%s/%s:",name_dir,name);
+        printf("no perssion\n");
+    }else{
+        my_err("chdir",__LINE__);
+    }
+
+    return -1;
 }
 if(getcwd(name_dir,10000)<0){//getcwd将当前目录的绝对路径复制到name_dir
-  my_err("getcwd",__LINE__);                   //获取当前目录的绝对路径（重要，下面的打开目录的操作需要这个路径，否则需要手动添加）
+  my_err("getcwd",__LINE__); 
+  return 0;                  //获取当前目录的绝对路径（重要，下面的打开目录的操作需要这个路径，否则需要手动添加）
 }//拼接目录获取绝对路径
  //绝对路径是一个文件实际存在与硬盘的位置，相对路径是与自身的目标档案相关的位置
  printf("%s:\n",name_dir);
  
  dir = opendir(name_dir);     //用新获得的路径打开目录
-if(dir==NULL){
-  my_err("opendir",__LINE__);
-}
+//if(dir==NULL){
+  //my_err("opendir",__LINE__);
+  if(dir==NULL){
+    if(errno==13){
+        errno=0;
+        printf("no perssion\n");
+    }else{
+        my_err("opendir",__LINE__);
+    }
+    return 0;
+  }
+
  
   g_maxlen=0;
 while((ptr = readdir(dir))!=NULL){
@@ -293,64 +301,105 @@ closedir(dir);
  
 for(i=0;i<count;i++){
  
-  filenames[i]=(char*)malloc(256*sizeof(char));
-  memset(filenames[i],0,sizeof(char)*256);
+  filenames[i]=(char*)malloc(1024*sizeof(char));
+  memset(filenames[i],0,sizeof(char)*1024);
 }
  
  
-int j,len=strlen(name_dir);
+int j,len=strlen(name_dir),h=0;
 dir = opendir(name_dir);
 for(i=0;i<count;i++){
     ptr = readdir(dir);
     if(ptr == NULL){
-      my_err("readdir",__LINE__);
+     // my_err("readdir",__LINE__);
+     if(errno==13){
+        errno=0;
+        printf("no perssion\n");
+     }else{
+        my_err("readdir",__LINE__);
+     }
+     continue;
     }
  
-    strcat(filenames[i],ptr->d_name);   
+    strcat(filenames[h++],ptr->d_name);   
 }
-for(i=0;i<count;i++)
+for(i=0;i<h;i++)
    print(flag,filenames[i]);
   printf("\n");
                           //递归实现核心部分
  
-      for(i=0;i<count;i++){
+      for(i=0;i<h;i++){
  
           if(lstat(filenames[i],&buf)==-1)
           {  if(errno==13)
-              { printf("Permission denied\n");
-                return;
+              { errno=0;
+              printf("%s/%s\n",name_dir,filenames[i]);
+                printf("Permission denied\n");
+                //return;
               }
-              else if(strncmp(filenames[i],"/proc",4)==0)
-                 { printf("this is a /proc file\n");//无权限
-                   return;
-                 }
-            else 
-             my_err("lstat",__LINE__);
+              free(filenames[i]);
+              continue;
           }
-          if(strcmp(filenames[i],"..")==0)
-          continue;
-          if(filenames[i][0]=='.')
-          continue;
-          if(S_ISDIR(buf.st_mode)){//S_ISDIR判断是否是目录
-            int h=0;//opendir打开目录用绝对路径否则无法定位，readdir读，closedir关闭目录
-            g_linelen=MAX;
-            ls_R(filenames[i],flag);
+              else{
+                if(strcmp(filenames[i],"..")==0)
+                {
+                    free(filenames[i]);
+                    continue;
+                }else if(strcmp(filenames[i],".")==0){
+                    free(filenames[i]);
+                    continue;
+                }else if(S_ISDIR(buf.st_mode)){
+                    if(ls_R(filenames[i],flag)!=-1){
+                        chdir("../");
+                    }
+                    free(filenames[i]);
+                }else if(!S_ISDIR(buf.st_mode)){
+                    continue;
+                    free(filenames[i]);
+                }
+
+              }
           }
-          else if(!S_ISDIR(buf.st_mode))
-           {
-             continue;
-           }
-               chdir("../");          //处理完一个目录后返回上一层
-        }
+        free(filenames);
+        closedir(dir);
+        return 1;
+      }
+            
+            
+
+              
+        //       else if(strncmp(filenames[i],"/proc",4)==0)
+        //          { printf("this is a /proc file\n");//无权限
+        //            return;
+        //          }
+        //     else 
+        //      my_err("lstat",__LINE__);
+        //   }
+        //   if(strcmp(filenames[i],"..")==0)
+        //   continue;
+        //   if(filenames[i][0]=='.')
+        //   continue;
+        //   if(S_ISDIR(buf.st_mode)){//S_ISDIR判断是否是目录
+        //     int h=0;//opendir打开目录用绝对路径否则无法定位，readdir读，closedir关闭目录
+        //     g_linelen=MAX;
+        //     ls_R(filenames[i],flag);
+        //   }
+        //   else if(!S_ISDIR(buf.st_mode))
+        //    {
+        //      continue;
+        //    }
+        //        chdir("../");          //处理完一个目录后返回上一层
+        // }
  
     
-    for(i=0;i<count;i++)
-    {
-      free(filenames[i]);
-    }
-    free(filenames);
-    closedir(dir);          
-    }
+    // for(i=0;i<count;i++)
+    // {
+    //   free(filenames[i]);
+    // }
+    // free(filenames);
+    // closedir(dir);          
+    
+
 
 
 // void dir_print(int flag,char *path)
@@ -526,7 +575,7 @@ void dir_print(int flag,char*path)
     DIR *dir;
     struct dirent * ptr;
     int cnt=0;  //计算文件个数
-    char filename[256][PATH_MAX+1];
+   // char filename[256][PATH_MAX+1];
     long filetime[256];
     char tmpfilename[PATH_MAX+1];
     struct stat buf;
@@ -535,7 +584,7 @@ void dir_print(int flag,char*path)
     {
         my_err("opendir",__LINE__);
     }
-    while((ptr=readdir(dir))!=NULL)
+    while((ptr=readdir(dir))!=NULL)//?
      {
          int k=0;
          int q=0;
@@ -554,9 +603,11 @@ void dir_print(int flag,char*path)
      }
      closedir(dir);
  
-     if(cnt>256)  //过多文件
-      printf("%d :too many files under this dir",__LINE__);
-      
+     //if(cnt>256)  //过多文件
+      //printf("%d :too many files under this dir",__LINE__);
+      char **filename=(char**)malloc(sizeof(char *)*(cnt+1));
+     for(int i=0;i<cnt+1;i++)
+      filename[i]=(char*)malloc(sizeof(char)*100);
       dir=opendir(path);
      for(int i=0;i<cnt;i++)
      {
@@ -600,8 +651,20 @@ void dir_print(int flag,char*path)
         }
         else   //用文件名首字母排序
          {
-              qsort(filename,cnt,sizeof(filename[0]),cmp);//快排函数，第一个参数是地址（参与排序的首地址），第二个是需要排序的数量，第三个是每一个元素占用的空间，cmp为函数          
- 
+             // qsort(filename,cnt,sizeof(filename[0]),cmp);//快排函数，第一个参数是地址（参与排序的首地址），第二个是需要排序的数量，第三个是每一个元素占用的空间，cmp为函数          
+            for(int i=0;i<cnt;i++)
+               {
+                 for(int j=i+1;j<cnt;j++)
+                  {
+                    if(strcmp(filename[i],filename[j])>0)
+                     {
+                       char tmp[1024];
+                        strcpy(tmp,filename[i]);
+                        strcpy(filename[i],filename[j]);
+                        strcpy(filename[j],tmp);
+                     }
+                  }
+               }     
          }
          
           int total=0;
@@ -665,12 +728,12 @@ void dir_print(int flag,char*path)
                        }
  
              }
-	   /* for(int i=0;i<cnt+1;i++)
+	    for(int i=0;i<cnt+1;i++)
     {
       free(filename[i]);
     }
     free(filename);
-*/
+
  
 }
 
@@ -872,9 +935,18 @@ int main(int argc, char *argv[])
         } else {
             //得到具体路径，修改为绝对路径
             strcpy(path, argv[i]);
-            if(stat(path,&statres) == -1)
-                my_err("stat",__LINE__);
-
+            // if(stat(path,&statres) == -1)
+            //     my_err("stat",__LINE__);
+            if(lstat(argv[i],&statres)==-1)
+                    {   if(errno==13)
+                       {
+ 
+                        printf("Perssion denied\n");
+                        errno=0;
+                       }
+                        else 
+                        my_err("lstat",__LINE__);
+                    }
             //判断是否为目录文件 
             if(S_ISDIR(statres.st_mode)){
                 //如果目录最后忘记了/则加上
