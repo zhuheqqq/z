@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
                         errno=0;
                        }
                         else 
-                        my_err("lstat",__LINE__);
+                        my_err("lstat",__LINE__)
                     }
             //判断是否为目录文件 
             if(S_ISDIR(statres.st_mode)){
@@ -968,50 +968,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
