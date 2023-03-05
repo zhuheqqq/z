@@ -149,32 +149,7 @@ void ls_l(struct stat statres,char *name,int color)
 
 	color_print(name,color);
 
-    // if(ch=='l'){//如果是链接文件，使用readlink函数获取打开
-    //     printf("->");
-    //     char *buf;
-    //     ssize_t nbytes,bufsize;
-    //     bufsize=statres.st_size+1;
-    //     buf=malloc(bufsize);
-    //     if(buf==NULL){
-    //         perror("malloc");
-    //         exit(1);
-    //     }
-    //     nbytes=readlink(name,buf,bufsize);
-    //     if(nbytes==-1){
-    //         perror("readlink");
-    //         exit(1);
-    //     }
-    //     printf("%s",buf);
-    //     ch='x';
-    // }
-    // puts("");
-    // if(ch=='l'){
-    //     char linkbuf[200];
-    //     int ret=readlink(name,linkbuf,200);
-    //     printf("->");
-    //     printf("%s",linkbuf);
-    // }
-	// printf("\n");
+    
 }
 
 //if no l
@@ -213,6 +188,7 @@ void ls_i(char *name,int color)
 	}
 
 	if(stat(name,&statres)==-1)//lstat返回文件相关信息，如果遇到符号链接不会展开，而是直接返回符号链接本身
+    //要想进入符号链接用stat
 	{
 		my_err("lstat",__LINE__);
 	}
