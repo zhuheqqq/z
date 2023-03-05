@@ -65,13 +65,8 @@ int cmp(const void *_a,const void *_b)
 void ls_l(struct stat statres,char *name,int color)
 {
 	char statres_time[32];
-
-
-	// if(stat(fname,&statres)<0)
-	// {
-	// 	perror("stat()");
-	// 	exit(1);
-	// }
+    char ch;
+   
 
 	if(S_ISREG(statres.st_mode))
 		printf("-");
@@ -87,8 +82,11 @@ void ls_l(struct stat statres,char *name,int color)
 		printf("b");
 	else if(S_ISFIFO(statres.st_mode))
 		printf("f");
-	else if(S_ISLNK(statres.st_mode))
-		printf("l");
+	else if(S_ISLNK(statres.st_mode)){
+        printf("l");
+        ch='l';
+    }
+		
 /*	else
 		return '?';*/
 
@@ -150,7 +148,33 @@ void ls_l(struct stat statres,char *name,int color)
 	printf("  %s",statres_time);
 
 	color_print(name,color);
-	printf("\n");
+
+    // if(ch=='l'){//如果是链接文件，使用readlink函数获取打开
+    //     printf("->");
+    //     char *buf;
+    //     ssize_t nbytes,bufsize;
+    //     bufsize=statres.st_size+1;
+    //     buf=malloc(bufsize);
+    //     if(buf==NULL){
+    //         perror("malloc");
+    //         exit(1);
+    //     }
+    //     nbytes=readlink(name,buf,bufsize);
+    //     if(nbytes==-1){
+    //         perror("readlink");
+    //         exit(1);
+    //     }
+    //     printf("%s",buf);
+    //     ch='x';
+    // }
+    // puts("");
+    // if(ch=='l'){
+    //     char linkbuf[200];
+    //     int ret=readlink(name,linkbuf,200);
+    //     printf("->");
+    //     printf("%s",linkbuf);
+    // }
+	// printf("\n");
 }
 
 //if no l
@@ -188,7 +212,7 @@ void ls_i(char *name,int color)
 		g_linelen=MAX;
 	}
 
-	if(lstat(name,&statres)==-1)//lstat返回文件相关信息，如果遇到符号链接不会展开，而是直接返回符号链接本身
+	if(stat(name,&statres)==-1)//lstat返回文件相关信息，如果遇到符号链接不会展开，而是直接返回符号链接本身
 	{
 		my_err("lstat",__LINE__);
 	}
@@ -210,9 +234,9 @@ void ls_i(char *name,int color)
 void ls_s(char *name,int color)
 {
 	struct stat statres;
-	if(lstat(name,&statres)==-1)
+	if(stat(name,&statres)==-1)
 	{
-		my_err("lstat",__LINE__);
+		my_err("stat",__LINE__);
 	}
 	int i,len=strlen(name);
 	/*g_linelen-=(g_maxlen+12);
@@ -330,7 +354,7 @@ for(i=0;i<h;i++)
  
       for(i=0;i<h;i++){
  
-          if(lstat(filenames[i],&buf)==-1)
+          if(stat(filenames[i],&buf)==-1)
           {  if(errno==13)
               { errno=0;
               printf("%s/%s\n",name_dir,filenames[i]);
@@ -367,209 +391,7 @@ for(i=0;i<h;i++)
             
             
 
-              
-        //       else if(strncmp(filenames[i],"/proc",4)==0)
-        //          { printf("this is a /proc file\n");//无权限
-        //            return;
-        //          }
-        //     else 
-        //      my_err("lstat",__LINE__);
-        //   }
-        //   if(strcmp(filenames[i],"..")==0)
-        //   continue;
-        //   if(filenames[i][0]=='.')
-        //   continue;
-        //   if(S_ISDIR(buf.st_mode)){//S_ISDIR判断是否是目录
-        //     int h=0;//opendir打开目录用绝对路径否则无法定位，readdir读，closedir关闭目录
-        //     g_linelen=MAX;
-        //     ls_R(filenames[i],flag);
-        //   }
-        //   else if(!S_ISDIR(buf.st_mode))
-        //    {
-        //      continue;
-        //    }
-        //        chdir("../");          //处理完一个目录后返回上一层
-        // }
- 
-    
-    // for(i=0;i<count;i++)
-    // {
-    //   free(filenames[i]);
-    // }
-    // free(filenames);
-    // closedir(dir);          
-    
-
-
-
-// void dir_print(int flag,char *path)
-// {
-// 	DIR *dir;
-// 	struct dirent *ptr;
-// 	int count=0;
-// 	struct stat statres;
-// //	char **filename;
-
-// 	//filename=(char **)malloc(sizeof(char *)*20000);
-
-// 	int i;
-// 	//for(i=0;i<20000;i++)
-// 	//	filename[i]=(char *)malloc(PATH_MAX+1);
-
-// 	long *filetime;
-// 	filetime=(long *)malloc(sizeof(long)*20000);
-
-// 	char temp[PATH_MAX];
-// 	long timeTemp;
-
-// 	dir=opendir(path);
-// 	if(dir==NULL)
-// 		my_err("opendir",__LINE__);
-
-// 	while((ptr=readdir(dir))!=NULL)
-// 	{
-// 		if(g_maxlen<strlen(ptr->d_name))
-// 			g_maxlen=strlen(ptr->d_name);
-// 		count++;
-// 	}
-
-// 	closedir(dir);
-
-// 	//动态数组
-// 	char**filename=(char**)malloc((count)*sizeof(char*));
-// 	memset(filename,0,sizeof(char*)*(count));
-
-// 	for(i=0;i<count;i++)
-// 	{
-// 		filename[i]=(char*)malloc(1024*sizeof(char));
-// 		memset(filename[i],0,sizeof(char)*1024);
-// 	}
-
-	
-
-	
-
-// 	int j,k;
-// 	int len=strlen(path);
-
-// 	dir=opendir(path);
-
-// 	for(k=0;k<count;k++)
-// 	{
-// 		ptr=readdir(dir);
-// 		if(ptr==NULL)
-// 			my_err("readdir",__LINE__);
-// 		strncpy(filename[k],path,len);
-// 		filename[k][len]=0;
-// 		strcat(filename[k],ptr->d_name);
-// 		filename[k][len+strlen(ptr->d_name)]=0;
-// 		lstat(filename[k],&statres);
-// 		filetime[k]=statres.st_mtime;
-// 	}
-
-// 	closedir(dir);
-
-// 	if(flag&PARAM_T)
-// 	{
-// 		for(k=0;k<count-1;k++)
-// 		{
-// 			for(j=0;j<count-1-k;j++)
-// 			{
-// 				if(filetime[j]<filetime[j+1])
-// 				{
-// 					timeTemp=filetime[j];
-// 					filetime[j]=filetime[j+1];
-// 					filetime[j+1]=timeTemp;
-// 					strcpy(temp,filename[j]);
-// 					strcpy(filename[j],filename[j+1]);
-// 					strcpy(filename[j+1],temp);
-// 				}
-// 			}
-// 		}
-// 	}else{
-//             for(k=0;k<count-1;k++)
-//             {
-//                 for(j=0;j<count-1-k;j++)
-//                 {
-//                     if(strcmp(filename[j],filename[j+1])>0)
-//                     {
-//                         strcpy(temp,filename[j]);
-//                         strcpy(filename[j],filename[j+1]);
-//                         strcpy(filename[j+1],temp);
-//                     }
-//                 }
-//             }
-// 		}
-//         if(flag&PARAM_R){
-//             if(flag&PARAM_r){
-//                 for(k=count-1;k>=0;k--){
-//                     print(flag,*filename[k]);
-//                 }
-//                 for(k=count-1;k>=0;k--){
-//                     if((stat(filename[k],&statres))==-1){
-//                         my_err("stat",__LINE__);
-//                     }
-//                     if(S_ISDIR(statres.st_mode))
-//                     {
-//                         len=strlen(filename[k]);
-//                     if(filename[k][len-1]=='.'&&filename[k][len-2]=='/'||filename[k][len-1] == '.' && filename[k][len-2] == '.' && filename[k][len-3] == '/')
-//                     {
-//                         continue;
-//                     }
-//                     printf("\n\n%s:",filename[k]);
-
-
-//                     len=strlen(filename[k]);
-//                     strcat(filename[k],"/");
-//                     dir_print(flag,filename[k]);
-//                 }else{
-//                     print(flag,filename[k]);
-//                 }
-//             }
-//         }else{
-//             for(k=0;k<count;k++){
-//                 stat(filename[k],&statres);
-//                 if(S_ISDIR(statres.st_mode)){
-//                     len=strlen(filename[k]);
-//                     if(filename[k][len-1] == '.' && filename[k][len-2] == '/' ||
-
-//             filename[k][len-1] == '.' && filename[k][len-2] == '.' && filename[k][len-3] == '/'){
-//                 continue;
-//             }
-//             printf("\n\n%s:\n",filename[k]);
-
-//             len=strlen(filename[k]);
-//             strcat(filename[k],"/");
-//             dir_print(flag,filename[k]);
-//                 }else{
-//                     print(flag,filename[k]);
-//                 }
-//             }
-//         }
-//     }else{
-//         if(flag&PARAM_r){
-//             for(k=count-1;k>=0;k--){
-//                 print(flag,filename[k]);
-//             }
-//         }else{
-//             for(k=0;k<count;k++){
-//                 print(flag,filename[k]);
-//             }
-//         }
-//     }
-
-//     if((flag&PARAM_L)==0){
-//         printf("\n");
-//     }
-
-//     for(k=0;k<20000;k++){
-//         free(filename[k]);
-//     }
-
-//     free(filename);
-//     free(filetime);
-
-// }
+        
 void dir_print(int flag,char*path)
 {
     DIR *dir;
@@ -631,9 +453,9 @@ void dir_print(int flag,char*path)
              struct stat buf;
              for(int i=0;i<cnt;i++)
               {
-                  if(lstat(filename[i],&buf)==-1)
+                  if(stat(filename[i],&buf)==-1)
                    {
-                       my_err("lstat",__LINE__);
+                       my_err("stat",__LINE__);
                    }
                    filetime[i]=buf.st_mtime;
               }
@@ -673,9 +495,9 @@ void dir_print(int flag,char*path)
            {
                for(int i=0;i<cnt;i++)
                 {
-                    if(lstat(filename[i],&buf)==-1)
+                    if(stat(filename[i],&buf)==-1)
                      {
-                         my_err("lstat",__LINE__);
+                         my_err("stat",__LINE__);
                      }
                     total=total+buf.st_blocks/2; 
                 }
@@ -684,9 +506,9 @@ void dir_print(int flag,char*path)
            {
                 for(int i=0;i<cnt;i++)
                 {   
-                    if(lstat(filename[i],&buf)==-1)
+                    if(stat(filename[i],&buf)==-1)
                      {   
-                         my_err("lstat",__LINE__);
+                         my_err("stat",__LINE__);
                      }
                      if(filename[i][2]!='.')
                     total=total+buf.st_blocks/2; 
@@ -826,13 +648,7 @@ switch(flag)
 		ls_l(statres,name,color);
 	}
 	break;
-/*     case PARAM_I+PARAM_L+PARAM_S:
-	if(name[0]='.'){
-		printf(" %ld",statres.st_ino);
-		printf(" %ld",statres.st_blocks/2);
-		ls_l(statres,name,color);
-	}
-	break;*/
+
      case PARAM_L+PARAM_S+PARAM_A://-asl
 	printf("%-7ld",statres.st_blocks/2);
 	ls_l(statres,name,color);
@@ -937,7 +753,7 @@ int main(int argc, char *argv[])
             strcpy(path, argv[i]);
             // if(stat(path,&statres) == -1)
             //     my_err("stat",__LINE__);
-            if(lstat(argv[i],&statres)==-1)
+            if(stat(argv[i],&statres)==-1)
                     {   if(errno==13)
                        {
  
@@ -945,7 +761,7 @@ int main(int argc, char *argv[])
                         errno=0;
                        }
                         else 
-                        my_err("lstat",__LINE__)
+                        my_err("stat",__LINE__);
                     }
             //判断是否为目录文件 
             if(S_ISDIR(statres.st_mode)){
