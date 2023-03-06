@@ -57,7 +57,7 @@ int main()
 		case 6:
 			DisplayAll(); break;//6.显示所有电影信息
 		case 7:  
-			Count(); break; //7.统计
+			Statistics(); break;//7.统计电影信息
 		case 8:
 			Sort(); break;  //8.排序 
 		case 9:
@@ -602,7 +602,7 @@ void Changedata(List p)
 }
 
 //统计信息
-void Count()
+void Statistics()
 {
 	int cnt=0,choose,price,cnt1=0;
 	double grade;
