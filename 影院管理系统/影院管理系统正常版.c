@@ -55,11 +55,13 @@ int main()
 		case 5:
 			DeleteAll(); break;  //5.删除所有电影信息 
 		case 6:
-			DisplayAll(); break;  //6.显示所有电影信息 
-		case 7:
-			Sort(); break;  //7.排序 
+			DisplayAll(); break;//6.显示所有电影信息
+		case 7:  
+			Count(); break; //7.统计
 		case 8:
-			Save(); break;  //8.保存 
+			Sort(); break;  //8.排序 
+		case 9:
+			Save(); break;  //9.保存 
 		case 0:
 			 return 0;   //0.退出 
 		}
@@ -164,8 +166,9 @@ void Directory() //进入系统之后的菜单
     printf("*\t\t4.修改电影信息\t\t\t        *\n");
     printf("*\t\t5.删除所有电影信息\t\t        *\n");
     printf("*\t\t6.显示所有电影信息\t\t        *\n");
-    printf("*\t\t7.排序\t\t\t                *\n");
-    printf("*\t\t8.保存\t\t\t                *\n");
+	printf("*\t\t7.统计电影信息\t\t\t        *\n");
+    printf("*\t\t8.排序\t\t\t                *\n");
+    printf("*\t\t9.保存\t\t\t                *\n");
     printf("*\t\t0.退出\t\t\t                *\n");
     printf("*********************************************************\n");
 	// printf("\n\n");
@@ -186,7 +189,7 @@ void Directory() //进入系统之后的菜单
 int Choose(){  //选择1-8的菜单功能 
 	int n;
 	printf("请输入序号:");
-	while (scanf("%d", &n) != 1 || n < 0 || n>8)
+	while (scanf("%d", &n) != 1 || n < 0 || n>9)
 	{
 		printf("请重新输入:");
 		scanf("%d", &n);
@@ -306,7 +309,7 @@ void Search()  //查询电影信息
 		if (a== NULL)
 		{
 			printf("---------------------------------查找失败-----------------------------------\n\n");
-			printf("-----------------------------请按回车键回到主菜单-----------------------\n");
+			printf("-----------------------------请按回车键回到主菜单--------------------------\n");
 			flag = 0;
 			break; 
 		}
@@ -323,6 +326,8 @@ void Search()  //查询电影信息
 		printf("\t\t\t\t\t\t\t\t\t\t\t\t[%d]%s\n",i+1,a->timeline[i]);
 	printf("\n");
     }
+	printf("--------------------------------------------请按回车键回到主菜单---------------------------------------------\n");
+	getchar();
 	printf("\n\n");
 	getchar();
 	getchar();
@@ -594,6 +599,60 @@ void Changedata(List p)
 	int ex3 = p->number;
 	p->number = p->next->number;
 	p->next->number = ex3;
+}
+
+//统计信息
+void Count()
+{
+	int cnt=0,choose,price,cnt1=0;
+	double grade;
+	List a,b;
+	a=b=head->next;
+	printf("-----------------------------------------------------------------\n");
+	printf("\t请选择按1.评分统计\t2.按评分和票价统计\n");
+	printf("\t请输入您的选项:");
+	scanf("%d",&choose);
+	if(choose==1){
+		printf("您想统计评分为多少以上的电影:");
+		scanf("%lf",&grade);
+		printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
+		printf("----------------------------------------------------------------");
+		printf("--------------------------------------------------\n");
+		getchar();
+		while(a!=NULL){
+			if(a->grade>=grade){
+				cnt++;
+				printf("%-18s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
+				
+	
+			}
+			b=a;
+			a=b->next;
+		}
+		printf("------------------------------------------共有%d部电影评分在%f及以上----------------------------------------\n",cnt,grade);
+		
+
+	}else if(choose==2){
+		printf("您想统计评分为多少以上以及票价在多少以下的电影（输入格式为评分 票价）:");
+		scanf("%lf %d",&grade,&price);
+		printf("电影名\t\t评分\t\t场次\t\t时长\t\t展厅号\t\t票价\t\t上映时间段\n");
+		printf("----------------------------------------------------------------");
+		printf("--------------------------------------------------\n");
+		while(a!=NULL){
+			if(a->grade>=grade&&a->price<=price){
+				cnt1++;
+				printf("%-18s\t%.1lf\t\t%d\t\t%d\t\t%d\t\t%.2lf\t\t[1]%s\n",a->name,a->grade,a->number,a->time,a->hall,a->price,a->timeline[0]);
+				
+			}
+			b=a;
+			a=b->next;
+		}
+		printf("------------------------------共有%d部电影评分在%f及以上且票价在%d以下--------------------------------\n",cnt1,grade,price);
+	}
+	//getchar();
+	printf("--------------------------------------------请按回车键回到主菜单---------------------------------------------\n");
+	getchar();
+
 }
  
 void Save()
