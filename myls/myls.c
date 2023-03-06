@@ -1,4 +1,3 @@
-
 #include<stdio.h>
 #include <linux/limits.h> //包含PATH_MAX =260
 #include<string.h>

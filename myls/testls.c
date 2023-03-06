@@ -149,7 +149,7 @@ void ls_l(struct stat statres,char *name,int color)
 
 	color_print(name,color);
 
-    
+	 printf("\n");
 }
 
 //if no l
@@ -187,8 +187,7 @@ void ls_i(char *name,int color)
 		g_linelen=MAX;
 	}
 
-	if(stat(name,&statres)==-1)//lstat返回文件相关信息，如果遇到符号链接不会展开，而是直接返回符号链接本身
-    //要想进入符号链接用stat
+	if(lstat(name,&statres)==-1)//lstat返回文件相关信息，如果遇到符号链接不会展开，而是直接返回符号链接本身
 	{
 		my_err("lstat",__LINE__);
 	}
@@ -207,43 +206,40 @@ void ls_i(char *name,int color)
 	g_linelen-=(g_maxlen+2+8);
 }
 
-void ls_s(char *name,int color)
-{
-	struct stat statres;
-	if(stat(name,&statres)==-1)
-	{
-		my_err("stat",__LINE__);
-	}
-	int i,len=strlen(name);
-	/*g_linelen-=(g_maxlen+12);
-	if(g_linelen<=g_maxlen)
-	{
-		printf("\n");
-		g_linelen=MAX;
-	}*/
-	if(g_linelen<g_maxlen)
-        {
-                printf("\n");
-                g_linelen=MAX;
-        }
+// void ls_s(char *name,int color)
+// {
+// 	struct stat statres;
+// 	if(lstat(name,&statres)==-1)
+// 	{
+// 		my_err("lstat",__LINE__);
+// 	}
+// 	int i,len=strlen(name);
+// 	/*g_linelen-=(g_maxlen+12);
+// 	if(g_linelen<=g_maxlen)
+// 	{
+// 		printf("\n");
+// 		g_linelen=MAX;
+// 	}*/
+// 	if(g_linelen<g_maxlen)
+//         {
+//                 printf("\n");
+//                 g_linelen=MAX;
+//         }
 
-          printf("%7ld",statres.st_blocks/2);
+//           printf("%7ld",statres.st_blocks/2);
 
 
-        len=strlen(name);
-        len=g_maxlen-len;
-        //printf("len=%d",len);
-        color_print(name,color);
+//         len=strlen(name);
+//         len=g_maxlen-len;
+//         //printf("len=%d",len);
+//         color_print(name,color);
 
-        for(i=0;i<len;i++)
-                printf(" ");
+//         for(i=0;i<len+1;i++)
+//                 printf(" ");
 
 	
 	  
-}
-
-
-
+// }
 
 int ls_R(char*name,int flag)  
  
@@ -330,7 +326,7 @@ for(i=0;i<h;i++)
  
       for(i=0;i<h;i++){
  
-          if(stat(filenames[i],&buf)==-1)
+          if(lstat(filenames[i],&buf)==-1)
           {  if(errno==13)
               { errno=0;
               printf("%s/%s\n",name_dir,filenames[i]);
@@ -429,9 +425,9 @@ void dir_print(int flag,char*path)
              struct stat buf;
              for(int i=0;i<cnt;i++)
               {
-                  if(stat(filename[i],&buf)==-1)
+                  if(lstat(filename[i],&buf)==-1)
                    {
-                       my_err("stat",__LINE__);
+                       my_err("lstat",__LINE__);
                    }
                    filetime[i]=buf.st_mtime;
               }
@@ -471,9 +467,9 @@ void dir_print(int flag,char*path)
            {
                for(int i=0;i<cnt;i++)
                 {
-                    if(stat(filename[i],&buf)==-1)
+                    if(lstat(filename[i],&buf)==-1)
                      {
-                         my_err("stat",__LINE__);
+                         my_err("lstat",__LINE__);
                      }
                     total=total+buf.st_blocks/2; 
                 }
@@ -482,9 +478,9 @@ void dir_print(int flag,char*path)
            {
                 for(int i=0;i<cnt;i++)
                 {   
-                    if(stat(filename[i],&buf)==-1)
+                    if(lstat(filename[i],&buf)==-1)
                      {   
-                         my_err("stat",__LINE__);
+                         my_err("lstat",__LINE__);
                      }
                      if(filename[i][2]!='.')
                     total=total+buf.st_blocks/2; 
@@ -609,13 +605,15 @@ switch(flag)
             ls_i(name,color);
          break;
     case PARAM_S://-s
-	if(name[0]='.')
-	       ls_s(name,color);
+	if(name[0]!='.')
+	       printf("%7ld",statres.st_blocks/2);
+           ls_no_l(name,color);
         break;
     case PARAM_I+PARAM_S://-si
 	if(name[0]='.'){
 		printf("%-15ld",statres.st_ino);
-		ls_s(name,color);
+		printf("%7ld",statres.st_blocks/2);
+        ls_no_l(name,color);
 	}
 	break;
      case PARAM_L+PARAM_S://-sl
@@ -637,16 +635,18 @@ switch(flag)
 	}
 	break;
      case PARAM_A+PARAM_S:
-	ls_s(name,color);
+        printf("%7ld",statres.st_blocks/2);
+        ls_no_l(name,color);
 	break;
      case PARAM_I+PARAM_S+PARAM_A:
-	printf("%-15ld",statres.st_ino);
-	ls_s(name,color);
+        printf("%-15ld",statres.st_ino);
+        printf("%7ld",statres.st_blocks/2);
+        ls_no_l(name,color);
 	break;
      case PARAM_I+PARAM_A+PARAM_L+PARAM_S:
-	printf("%-15ld",statres.st_ino);
-	printf("%-7ld",statres.st_blocks/2);
-	ls_l(statres,name,color);
+        printf("%-15ld",statres.st_ino);
+        printf("%-7ld",statres.st_blocks/2);
+        ls_l(statres,name,color);
 	break;
     default:
          break;
@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
                         errno=0;
                        }
                         else 
-                        my_err("stat",__LINE__);
+                        my_err("lstat",__LINE__);
                     }
             //判断是否为目录文件 
             if(S_ISDIR(statres.st_mode)){
@@ -747,7 +747,11 @@ int main(int argc, char *argv[])
                     path[strlen(argv[i])+1] = '\0';
                 }else 
                     path[strlen(argv[i])] = '\0';
-
+		printf("%s\n",path);
+                if(chdir(path)==-1)   //更换到dath目录下
+                {
+                my_err("chdir",__LINE__);
+                }
                 dir_print(flag_param,path);//按照目录输出
                 i++;
             }else{
@@ -755,9 +759,11 @@ int main(int argc, char *argv[])
                 print(flag_param,path);
                 i++;
             }
+            printf("\n");
         }
     }while(i < argc);
 
     return 0;
 }
+
 
