@@ -33,6 +33,7 @@ void Sort();      // 排序
 void Changedata(List p);   // 排序中的数据交换
 void DisplayAll();  //  显示所有电影
 void Save();       //  保存
+void Statistics();//统计
  
 int main()
 {
