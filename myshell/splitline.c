@@ -37,7 +37,7 @@ char **splitline(char*line)
 {
     char *newstr();
     char **args;
-    int sports=0;
+    int spots=0;
     int bufspace=0;
     int argnum=0;
     char *cp=line;

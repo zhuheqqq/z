@@ -8,7 +8,7 @@
 
 int main()
 {
-    char *cmdline,*prompt,*arglist;
+    char *cmdline,*prompt,**arglist;
     int result;
     void setup();
 
@@ -25,6 +25,13 @@ int main()
     }
     return 0;
 }
+
+void setup()
+{
+    signal(SIGINT,SIG_IGN);
+    signal(SIGQUIT,SIG_IGN);
+}
+
 
 void fatal(char *s1,char *s2,int n)
 {
