@@ -28,8 +28,10 @@ int main()
 
 void setup()
 {
-    signal(SIGINT,SIG_IGN);
-    signal(SIGQUIT,SIG_IGN);
+    //按下ctrl+c或者是delete没有反应，屏蔽此信号
+    signal(SIGINT,SIG_IGN);//设置某一信号的对应动作，错误返回-1
+    //SIG_IGN忽略前一个参数所代表的信号
+    signal(SIGQUIT,SIG_IGN);/*忽略ctrl+\*/
 }
 
 
