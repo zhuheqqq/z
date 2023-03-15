@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include "smsh.h"
 
-enum states {NEUTRAL,WANT_THEN,THEN_BLOCK};
+enum states {NEUTRAL,WANT_THEN,THEN_BLOCK};//枚举
 enum results {SUCCESS,FAIL};
 
 static int if_state=NEUTRAL;
@@ -45,11 +45,27 @@ int do_control_command(char **args)
         }
 
     }else if(strcmp(cmd,"then")==0){
-        if(if_stste!=WANT_THEN){
+        if(if_state!=WANT_THEN){
             rv=syn_err("then unexpected");
 
         }else{
             if_state=THEN_BLOCK;
+            rv=0;
+        }
+    }else if(strcmp(cmd,"else")==0){
+        if(if_state!=WANT_THEN){
+            rv=syn_err("else unexpected");
+
+        }else{
+            if_state=THEN_BLOCK;
+            rv=0;
+        }
+    }else if(strcmp(cmd,"fi")==0){
+        if(if_state!=THEN_BLOCK){
+            rv=syn_err("fi unexpected");
+
+        }else{
+            if_state=NEUTRAL;
             rv=0;
         }
     }
