@@ -26,7 +26,7 @@ void fatal(char *,char *,int);
 enum states {NEUTRAL,WANT_THEN,THEN_BLOCK};//枚举
 enum results {SUCCESS,FAIL};
 
-static int if_state=NEUTRAL;
+static int if_state=NEUTRAL;//0
 static int if_result=SUCCESS;
 static int last_stat=0;
 
@@ -34,7 +34,7 @@ int main()
 {
     char *cmdline,*prompt,**arglist;
     int result;
-    void setup();
+    void setup();//忽略信号
 
     prompt=DFL_PROMPT;
     setup();
@@ -112,7 +112,7 @@ int ok_to_execute()
 
 }
 
-int is_control_command(char *s)
+int is_control_command(char *s)//判断if等语句
 {
     return(strcmp(s,"if")==0||strcmp(s,"then")==0||strcmp(s,"fi")==0);
 }
@@ -165,7 +165,7 @@ int do_control_command(char **args)
 }
 
 
-int process(char ** args)
+int process(char ** args)//if then的处理函数
 {
     int rv=0;
     if(args[0]==NULL)
@@ -173,10 +173,10 @@ int process(char ** args)
     else if(is_control_command(args[0])){
         rv=do_control_command(args);
     }
-    else if(ok_to_execute()){
+    else if(ok_to_execute()){//没有if
         rv=execute(args);
     }
-    return rv;
+    return rv;//返回状态值，0代表没有相关语句，1代表有
 }
 
 
@@ -187,30 +187,30 @@ char *next_cmd(char *prompt,FILE *fp)
     int pos=0;
     int c;
 
-    printf("%s",prompt);
-    while((c=getc(fp))!=EOF){
+    printf("%s",prompt);//打印标志
+    while((c=getc(fp))!=EOF){//当命令行有输入时
         if(pos+1>=bufspace)
         {
             if(bufspace==0)
-                buf=emalloc(BUFSIZ);
+                buf=emalloc(BUFSIZ);//分配缓存空间
             else
-                buf=erealloc(buf,bufspace+BUFSIZ);
+                buf=erealloc(buf,bufspace+BUFSIZ);//增加长度
             bufspace+=BUFSIZ;
         }
         if(c=='\n')
-            break;
+            break;//命令结束
         buf[pos++]=c;
     }
 
         if(c==EOF&&pos==0)
             return NULL;
-        buf[pos]='\0';
-        return buf;
+        buf[pos]='\0';//放置到缓冲区
+        return buf;//返回值是指向缓冲区的指针
     }
 
 
 
-char **splitline(char*line)
+char **splitline(char*line)//将字符串分解为字符串数组，并返回这个数组，调用malloc分配内存可以接受任意参数个数的命令行
 {
     char *newstr();
     char **args;
@@ -230,9 +230,9 @@ char **splitline(char*line)
 
     while(*cp!='\0'){
         while(is_delim(*cp))
-            cp++;
+            cp++;//空格或者\t跳过
         if(*cp=="\0")
-            break;
+            break;//结束
         if(argnum+1>=spots)
         {
             args=erealloc(args,bufspace+BUFSIZ);
@@ -244,10 +244,10 @@ char **splitline(char*line)
         len=1;
         while(*++cp!='\0'&&!(is_delim(*cp)))
             len++;
-        args[argnum++]=newstr(start,len);
+        args[argnum++]=newstr(start,len);//分解字符串
     }
     args[argnum]=NULL;
-    return args;
+    return args;//返回指向指针的指针，指针为参数命令
 }
 
 void *emalloc(size_t n)
