@@ -239,4 +239,42 @@ void mycd(const char *argv[]){
 
 }
 
-void mydup()//重定向使输出输出到文件中
+void mydup(char *argv[])//重定向使输出输出到文件中
+{
+    char *str[MAX]={NULL};
+    int i=0;
+
+    while(strcmp(argv[i],">")){
+        str[i]=argv[i];//存入之前的参数
+        i++;
+    }
+    int number=i;//记录参数个数
+    int flag=isdo(argv,cnt);
+    i++;
+
+    int filefd=dup(1);//获取新的文件描述符
+    int fd=open(argv[i],O_WRONLY|O_CREAT|O_TRUNC,0666);
+
+    dup2(fd,1);//关闭标准输出，返回大于1的文件描述符
+
+    //fork新进程
+    pid_t pid=fork();
+    if(pid<0){
+        perror("fork");
+        exit(1);
+    }else if(pid==0){//child
+        if(flag==3){
+            mypipe(str,number);
+        }else{
+            execvp(str[0],str);
+        }
+    }else if(pid>0){
+        if(pass==1){
+            pass=0;
+            printf("%d\n",pid);
+            return;
+        }
+        waitpid(pid, NULL, 0);
+    }
+    dup2(filefd,1);
+}
