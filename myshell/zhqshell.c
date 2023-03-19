@@ -379,3 +379,42 @@ void mydup3(char *argv[])
     }
     dup2(filein,0);
 }
+
+void callCommandWithPipe(char *argv[],int count)//多重管道
+{
+    int ret[10]={0};//记录管道的位置
+    int number=0;//记录命令个数
+    int i;
+
+    for(i=0;i<count;i++){
+        if(!strcmp(argv[i],"|")){//遇到管道则进入
+            ret[number++]=i;
+        }
+    }
+
+    int cmd_count=numder+1;
+    int *cmd[cmd_count][10];
+
+    for(i=0;i<cmd_count;i++){//将命令以管道分割符分好
+        int j,n=0,i=0;
+        if(i==0){
+            for(j=0;j<ret[i];j++){
+                cmd[i][n++]=argv[j];
+            }
+            cmd[i][n]=NULL;
+        }else if(i==cmd_count-1){
+            int n=0;
+            for(int j=ret[i-1]+1;j<count;j++){
+                cmd[i][n++]=argv[j];
+            }
+            cmd[i][n]=NULL;
+        }else{
+            int n=0;
+            for(int j=ret[i-1]+1;j<ret[i];j++){
+                cmd[i][n++]=argv[j];
+            }
+            cmd[i][n]=NULL;
+        }
+    }
+
+}
