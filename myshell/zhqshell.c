@@ -5,6 +5,11 @@
 #include<signal.h>
 #include<sys/wait.h>
 #include<ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <wait.h>
+#include <fcntl.h>
 
 
 #define YES 1
@@ -16,7 +21,28 @@
 
 int pass=0;//标记&
 
-
+void process(char *argv[], int number);
+int isdo(char *argv[], int cnt);
+// cd命令
+void mycd(char *argv[]);
+//输出重定向'>'
+void mydup(char *argv[]);
+//输出重定向'>>'
+void mydup2(char *argv[]);
+//输入重定向'<'
+void mydup3(char *argv[]);
+//管道'|'
+void mypipe(char *argv[], int cnt);
+//实现多重管道'|'
+void setup();//屏蔽信号
+void callCommandWithPipe(char *argv[], int count);//
+void fatal(char *s1,char *s2,int n);
+char * next_cmd(char *prompt,FILE *fp);//放置缓冲空间
+int execute(char *argv[]);//执行命令
+void * emalloc(size_t n);//添加了错误提示
+char * newstr(char *s,int l);
+void freelist(char **list);
+void * erealloc(void *p,size_t n);
 
 
 int main()
@@ -35,7 +61,7 @@ int main()
         while(argv[i]=strtok(NULL,mark)){
             i++;
         }
-        poccess(argv,i);
+        process(argv,i);
         
         free(cmdline);
     }
@@ -57,14 +83,8 @@ void fatal(char *s1,char *s2,int n)
     exit(n);
 }
 
-int syn_err(char *msg)
-{
-    if_state=NEUTRAL;
-    fprintf(stderr,"syntax error:%s\n",msg);
-    return -1;
-}
 
-void poccess(char *argv[],int cnt){
+void process(char *argv[],int cnt){
     int flag=isdo(argv,cnt);
     if(pass==1){
         cnt--;
@@ -77,7 +97,7 @@ void poccess(char *argv[],int cnt){
     }else if(flag==2){
         mydup(argv);
     }else if(flag==3){
-        mypipe(argv);
+        callCommandWithPipe(argv,cnt);
     }else if(flag==4){
         mydup2(argv);
     }else if(flag==5){
@@ -113,7 +133,7 @@ int execute(char *argv[])
 
 
 
-char *next_cmd(char *prompt,FILE *fp)
+char * next_cmd(char *prompt,FILE *fp)
 {
     char *buf;
     int bufspace=0;
@@ -145,7 +165,7 @@ char *next_cmd(char *prompt,FILE *fp)
 
 
 
-void *emalloc(size_t n)
+void * emalloc(size_t n)
 {
     void *rv;
     if((rv=malloc(n))==NULL)
@@ -153,7 +173,7 @@ void *emalloc(size_t n)
     return rv;
 }
 
-char *newstr(char *s,int l)
+char * newstr(char *s,int l)
 {
     char *rv=emalloc(l+1);
     rv[l]='\0';
@@ -170,7 +190,7 @@ void freelist(char **list)
 }
 
 
-void *erealloc(void *p,size_t n)
+void * erealloc(void *p,size_t n)
 {
     void *rv;
     if((rv=realloc(p,n))==NULL)
@@ -216,8 +236,8 @@ int isdo(char *argv[],int cnt){
 
 }
 
-char strcwd[MAX]
-void mycd(const char *argv[]){
+char strcwd[MAX];
+void mycd(char *argv[]){
     if(argv[1]==NULL){
         getcwd(strcwd,sizeof(strcwd));
         chdir("/home");
@@ -249,10 +269,10 @@ void mydup(char *argv[])//重定向使输出输出到文件中
         i++;
     }
     int number=i;//记录参数个数
-    int flag=isdo(argv,cnt);
+    int flag=isdo(argv,number);
     i++;
 
-    int filefd=dup(1);//获取新的文件描述符
+    int filefdout=dup(1);//获取新的文件描述符
     int fd=open(argv[i],O_WRONLY|O_CREAT|O_TRUNC,0666);
 
     dup2(fd,1);//关闭标准输出，返回大于1的文件描述符
@@ -264,7 +284,7 @@ void mydup(char *argv[])//重定向使输出输出到文件中
         exit(1);
     }else if(pid==0){//child
         if(flag==3){
-            mypipe(str,number);
+        callCommandWithPipe(str,number);
         }else{
             execvp(str[0],str);
         }
@@ -276,5 +296,86 @@ void mydup(char *argv[])//重定向使输出输出到文件中
         }
         waitpid(pid, NULL, 0);
     }
-    dup2(filefd,1);
+    dup2(filefdout,1);
+}
+
+//和mydup几乎一模一样
+void mydup2(char *argv[])//重定向使输出输出到文件中
+{
+    char *str[MAX]={NULL};
+    int i=0;
+
+    while(strcmp(argv[i],">>")){
+        str[i]=argv[i];//存入之前的参数
+        i++;
+    }
+    int number=i;//记录参数个数
+    int flag=isdo(argv,number);
+    i++;
+
+    int filefdout=dup(1);//获取新的文件描述符
+    int fd=open(argv[i],O_WRONLY|O_CREAT|O_APPEND,0666);
+
+    dup2(fd,1);//关闭标准输出，返回大于1的文件描述符
+
+    //fork新进程
+    pid_t pid=fork();
+    if(pid<0){
+        perror("fork");
+        exit(1);
+    }else if(pid==0){//child
+        if(flag==3){//有管道的情况
+            callCommandWithPipe(str,number);
+        }else{
+            execvp(str[0],str);
+        }
+    }else if(pid>0){
+        if(pass==1){
+            pass=0;
+            printf("%d\n",pid);
+            return;
+        }
+        waitpid(pid, NULL, 0);
+    }
+    dup2(filefdout,1);
+}
+
+void mydup3(char *argv[])
+{
+    char *str[MAX]=NULL;
+    int i=0;
+
+    while(strcmp(argv[i],"<")){
+        str[i]=argv[i];
+        i++;
+    }
+    i++;
+
+    int number=i;
+    int flag=isdo(argv,number);
+
+    int filefdin=dup(0);
+    int fd=open(argv[i],O_RDONLY,0666);
+    dup(fd,0);
+
+    pid_t pid=fork();
+    if(pid<0){
+        if(pass==1){
+            pass=0;
+            printf("%d\n",pid);
+            return;
+        }
+        perror("fork");
+        exit(1);
+    }else if(pid==0){
+        if(flag==3){
+            callCommandWithPipe(str,number);
+        }else{
+            execve(str[0],str);
+        }
+
+    }else if(pid>0){
+        waitpid(pid,NULL,0);
+    }
+    dup2(filein,0);
 }
