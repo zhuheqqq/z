@@ -82,6 +82,8 @@ int main()
         free(cmdline);
 
     }
+   
+    free(argv);
 
     return 0;
     
@@ -172,23 +174,21 @@ int isdo(char *argv[],int cnt){
     if(strcmp(argv[0],"cd")==0){
         flag=1;
     }
+    //奇怪 flag的值一直都会被改变
     for(i=0;i<cnt;i++){
-        if(strcmp(argv[0],">")==0){
+        if(strcmp(argv[i],">")==0){
             flag=2;
         }
-        if(strcmp(argv[0],"|")==0){
+        if(strcmp(argv[i],"|")==0){
             flag=3;
         }
-        if(strcmp(argv[0],">>")==0){
+        if(strcmp(argv[i],">>")==0){
             flag=4;
         }
-        if(strcmp(argv[0],"<")==0){
+        if(strcmp(argv[i],"<")==0){
             flag=5;
         }
-        if(strcmp(argv[0],"<<")==0){
-            flag=6;
-        }
-        if(strcmp(argv[0],"&")==0){
+        if(strcmp(argv[i],"&")==0){
             pass=1;
             argv[i]=NULL;
         }
@@ -220,6 +220,7 @@ void mycd(char *argv[]){
 
 }
 
+//重定向没有实现
 void mydup(char *argv[])//重定向使输出输出到文件中
 {
     char *str[MAX]={NULL};
@@ -229,6 +230,7 @@ void mydup(char *argv[])//重定向使输出输出到文件中
         str[i]=argv[i];//存入之前的参数
         i++;
     }
+  //  printf("%s",str[i]);
     int number=i;//记录参数个数
     int flag=isdo(argv,number);
     i++;
