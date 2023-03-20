@@ -275,7 +275,7 @@ void mydup(char *argv[])//重定向使输出输出到文件中
     int filefdout=dup(1);//获取新的文件描述符
     int fd=open(argv[i],O_WRONLY|O_CREAT|O_TRUNC,0666);
 
-    dup2(fd,1);//关闭标准输出，返回大于1的文件描述符
+    dup2(fd,1);//指定新文件描述符为1
 
     //fork新进程
     pid_t pid=fork();
@@ -342,7 +342,7 @@ void mydup2(char *argv[])//重定向使输出输出到文件中
 
 void mydup3(char *argv[])
 {
-    char *str[MAX]=NULL;
+    char *str[MAX]={NULL};
     int i=0;
 
     while(strcmp(argv[i],"<")){
@@ -356,7 +356,7 @@ void mydup3(char *argv[])
 
     int filefdin=dup(0);
     int fd=open(argv[i],O_RDONLY,0666);
-    dup(fd,0);
+    dup2(fd,0);
 
     pid_t pid=fork();
     if(pid<0){
@@ -371,13 +371,13 @@ void mydup3(char *argv[])
         if(flag==3){
             callCommandWithPipe(str,number);
         }else{
-            execve(str[0],str);
+            execvp(str[0],str);
         }
 
     }else if(pid>0){
         waitpid(pid,NULL,0);
     }
-    dup2(filein,0);
+    dup2(filefdin,0);
 }
 
 void callCommandWithPipe(char *argv[],int count)//多重管道
@@ -387,13 +387,13 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     int i;
 
     for(i=0;i<count;i++){
-        if(!strcmp(argv[i],"|")){//遇到管道则进入
+        if(!strcmp(argv[i],"|")){//遇到管道符则进入记录其位置
             ret[number++]=i;
         }
     }
 
-    int cmd_count=numder+1;
-    int *cmd[cmd_count][10];
+    int cmd_count=number+1;
+    char *cmd[cmd_count][10];
 
     for(i=0;i<cmd_count;i++){//将命令以管道分割符分好
         int j,n=0,i=0;
@@ -416,5 +416,9 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
             cmd[i][n]=NULL;
         }
     }
+
+  //创建管道
+
+
 
 }
