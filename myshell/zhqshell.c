@@ -10,16 +10,19 @@
 #include <dirent.h>
 #include <wait.h>
 #include <fcntl.h>
+#include<readline/readline.h>
+#include<readline/history.h>
 
 
 #define YES 1
 #define NO 0
 
-#define DFL_PROMPT "zhq_shell~$ "
+//#define DFL_PROMPT "zhq_shell~$ "
 
 #define MAX 128
 
 int pass=0;//标记&
+char lujing[1000];//保存路径
 
 void process(char *argv[], int number);
 int isdo(char *argv[], int cnt);
@@ -43,29 +46,54 @@ void * emalloc(size_t n);//添加了错误提示
 char * newstr(char *s,int l);
 void freelist(char **list);
 void * erealloc(void *p,size_t n);
+void colorprint();
 
 
 int main()
 {
-    char *cmdline,*prompt,**argv=NULL;
-    int i=1;
-    const char *mark=" ";
-    void setup();//忽略信号
+    char *argv[MAX]={NULL};
+    char *cmdline=NULL;
 
-    prompt=DFL_PROMPT;
     setup();
+    
 
-    while((cmdline=next_cmd(prompt,stdin))!=NULL)
-    {
+//没有循环出现--解决
+//段错误
+    while(1){
+        colorprint();
+
+        setup();
+
+
+        cmdline=readline(" ");
+        if(*cmdline){
+            add_history(cmdline);//历史命令
+        }
+        
+        char *mark=" ";
+        int i=1;
         argv[0]=strtok(cmdline,mark);
+
         while(argv[i]=strtok(NULL,mark)){
             i++;
         }
+
         process(argv,i);
-        
         free(cmdline);
+
     }
+
     return 0;
+    
+}
+
+void colorprint(){
+    char *name="zhuheqin@zhuheqin-ThinkPad-E14-Gen-4";
+    printf("\033[1m\033[32m%s\033[0m",name);
+    printf(":");
+    getcwd(lujing,sizeof(lujing));
+    printf("\033[1m\033[34m%s\033[0m",lujing);
+    printf("$ ");
 }
 
 void setup()
@@ -76,13 +104,11 @@ void setup()
     signal(SIGQUIT,SIG_IGN);/*忽略ctrl+\*/
 }
 
-
 void fatal(char *s1,char *s2,int n)
 {
     fprintf(stderr,"Error:%s,%s\n",s1,s2);
     exit(n);
 }
-
 
 void process(char *argv[],int cnt){
     int flag=isdo(argv,cnt);
@@ -132,71 +158,6 @@ int execute(char *argv[])
 }
 
 
-
-char * next_cmd(char *prompt,FILE *fp)
-{
-    char *buf;
-    int bufspace=0;
-    int pos=0;
-    int c;
-
-    printf("%s",prompt);//打印标志
-    while((c=getc(fp))!=EOF){//当命令行有输入时
-        if(pos+1>=bufspace)
-        {
-            if(bufspace==0)
-                buf=emalloc(BUFSIZ);//分配缓存空间
-            else
-                buf=erealloc(buf,bufspace+BUFSIZ);//增加长度
-            bufspace+=BUFSIZ;
-        }
-        if(c=='\n')
-            break;//命令结束
-        buf[pos++]=c;
-    }
-
-        if(c==EOF&&pos==0)
-            return NULL;
-        buf[pos]='\0';//放置到缓冲区
-        return buf;//返回值是指向缓冲区的指针
-    }
-
-
-
-
-
-void * emalloc(size_t n)
-{
-    void *rv;
-    if((rv=malloc(n))==NULL)
-        fatal("out of memory","",1);
-    return rv;
-}
-
-char * newstr(char *s,int l)
-{
-    char *rv=emalloc(l+1);
-    rv[l]='\0';
-    strncpy(rv,s,l);
-    return rv;
-}
-
-void freelist(char **list)
-{
-    char **cp=list;
-    while(*cp)
-        free(*cp++);
-    free(list);
-}
-
-
-void * erealloc(void *p,size_t n)
-{
-    void *rv;
-    if((rv=realloc(p,n))==NULL)
-            fatal("realloc()failed","",1);
-    return rv;
-}
 
 //管道fd[0]为读端，fd[1]为写端,pipe单向，有名管道双向
 //在父进程中，fork返回新创建子进程的进程ID；在子进程中，fork返回0；    
@@ -385,6 +346,7 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     int ret[10]={0};//记录管道的位置
     int number=0;//记录命令个数
     int i;
+    pid_t pid;
 
     for(i=0;i<count;i++){
         if(!strcmp(argv[i],"|")){//遇到管道符则进入记录其位置
@@ -418,7 +380,72 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     }
 
   //创建管道
+  int fd[number][2];
+  for(i=0;i<number;i++){
+    pipe(fd[i]);
+  }
+  //创建子进程
+  for(i=0;i<cmd_count;i++){
+    pid=fork();
+    if(pid==0){
+        break;
+    }
+  }
+  if(pid==0){//child
+    if(number){//保证单向通信
+        if(i==0){
+            dup2(fd[0][1],1);//绑定写端
+            close(fd[0][0]);//关闭读端
 
+            for(int j=0;j<cmd_count-2;j++){//其他管道读写端全部关闭
+                close(fd[j][1]);
+                close(fd[j][0]);
+            }
+        }else if(i==number){//最后一个管道
+            dup2(fd[i][0],0);//绑定读端
+            close(fd[i][1]);//关闭写端
 
+            for(int j=0;j<cmd_count;j++){
+                close(fd[j][1]);
+                close(fd[j][0]);
+            }
+        }else{
+            dup2(fd[i-1][0],0);
+            close(fd[i-1][1]);
+            dup2(fd[i][1],1);
+            close(fd[i][0]);
 
+            for(int j=0;j<number;j++){
+                if(j!=(i-1)&&j!=i){
+                    close(fd[j][0]);
+                    close(fd[j][1]);
+                }
+            }
+        }
+    }
+  }
+
+  execvp(cmd[i][0],cmd[i]);//文件名和路径
+  perror("execvp");
+  exit(1);
+
+  if(pid>0){
+    for(i=0;i<number;i++){
+        close(fd[i][0]);
+        close(fd[i][1]);
+    }
+    if(pass==1){
+            pass=0;
+            printf("%d\n",pid);
+            return;
+        }
+       // waitpid(pid, NULL, 0);
+    }
+    for(int j=0;j<number;j++){
+        wait(NULL);
+    }
+    
 }
+
+
+
