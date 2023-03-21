@@ -220,7 +220,7 @@ void mycd(char *argv[]){
 
 }
 
-//重定向没有实现
+//重定向没有实现--已解决
 void mydup(char *argv[])//重定向使输出输出到文件中
 {
     char *str[MAX]={NULL};
