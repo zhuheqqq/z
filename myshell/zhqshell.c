@@ -39,13 +39,7 @@ void mypipe(char *argv[], int cnt);
 //实现多重管道'|'
 void setup();//屏蔽信号
 void callCommandWithPipe(char *argv[], int count);//
-void fatal(char *s1,char *s2,int n);
-char * next_cmd(char *prompt,FILE *fp);//放置缓冲空间
 int execute(char *argv[]);//执行命令
-void * emalloc(size_t n);//添加了错误提示
-char * newstr(char *s,int l);
-void freelist(char **list);
-void * erealloc(void *p,size_t n);
 void colorprint();
 
 
@@ -83,7 +77,7 @@ int main()
 
     }
    
-    free(argv);
+   // free(argv);
 
     return 0;
     
@@ -96,6 +90,8 @@ void colorprint(){
     getcwd(lujing,sizeof(lujing));
     printf("\033[1m\033[34m%s\033[0m",lujing);
     printf("$ ");
+
+    fflush(stdout);//清空缓冲区
 }
 
 void setup()
@@ -103,7 +99,7 @@ void setup()
     //按下ctrl+c或者是delete没有反应，屏蔽此信号
     signal(SIGINT,SIG_IGN);//设置某一信号的对应动作，错误返回-1
     //SIG_IGN忽略前一个参数所代表的信号
-    signal(SIGQUIT,SIG_IGN);/*忽略ctrl+\*/
+    signal(SIGHUP,SIG_IGN);/*忽略*/
 }
 
 void fatal(char *s1,char *s2,int n)
