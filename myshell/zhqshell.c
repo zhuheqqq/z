@@ -22,7 +22,7 @@
 #define MAX 128
 
 int pass=0;//标记&
-char lujing[1000];//保存路径
+char lujing[1000];//cd功能保存路径
 
 void process(char *argv[], int number);
 int isdo(char *argv[], int cnt);
@@ -60,6 +60,12 @@ int main()
 
 
         cmdline=readline(" ");
+
+        if(cmdline==NULL){//屏蔽ctrl+D
+            printf("\n");
+            continue;
+        }
+
         if(*cmdline){
             add_history(cmdline);//历史命令
         }
@@ -99,7 +105,7 @@ void setup()
     //按下ctrl+c或者是delete没有反应，屏蔽此信号
     signal(SIGINT,SIG_IGN);//设置某一信号的对应动作，错误返回-1
     //SIG_IGN忽略前一个参数所代表的信号
-    signal(SIGHUP,SIG_IGN);/*忽略*/
+    signal(SIGHUP,SIG_IGN);
 }
 
 void fatal(char *s1,char *s2,int n)
@@ -142,7 +148,7 @@ int execute(char *argv[])
         perror("fork");
     else if(pid==0){
         signal(SIGINT,SIG_DFL);
-        signal(SIGQUIT,SIG_DFL);
+        //signal(SIGQUIT,SIG_DFL);
         execvp(argv[0],argv);
         perror("cannot execute command");
         exit(1);
