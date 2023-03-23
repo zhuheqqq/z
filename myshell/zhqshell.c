@@ -34,12 +34,10 @@ void mydup(char *argv[]);
 void mydup2(char *argv[]);
 //输入重定向'<'
 void mydup3(char *argv[]);
-//管道'|'
-void mypipe(char *argv[], int cnt);
 //实现多重管道'|'
 void setup();//屏蔽信号
 void callCommandWithPipe(char *argv[], int count);//
-int execute(char *argv[]);//执行命令
+void execute(char *argv[]);//执行命令
 void colorprint();
 
 
@@ -61,16 +59,20 @@ int main()
 
         cmdline=readline(" ");
 
-        if(cmdline==NULL){//屏蔽ctrl+D
+        if(cmdline=NULL){//屏蔽ctrl+D
             printf("\n");
             continue;
         }
 
-        if(*cmdline){
-            add_history(cmdline);//历史命令
+        if(strlen(cmdline)==0){
+            continue;
         }
+
+        // if(*cmdline){
+        //     add_history(cmdline);//历史命令
+        // }
         
-        char *mark=" ";
+        const char *mark=" ";
         int i=1;
         argv[0]=strtok(cmdline,mark);
 
@@ -133,22 +135,39 @@ void process(char *argv[],int cnt){
     }else if(flag==5){
         mydup3(argv);
     }else if(flag==10){
-        execute(argv);
+        //execute(argv);
+        pid_t pid=fork();
+        if(pid<0){
+            perror("fork");
+            exit(1);
+        }else if(pid==0){
+            //execute(argv);
+            execvp(argv[0],argv);
+            perror("cmdline");
+            exit(1);
+        }else if(pid>0){
+            if(pass==1){
+                pass=0;
+                printf("%d\n",pid);
+                return;
+            }
+            waitpid(pid,NULL,0);
+        }
     }
 }
 
-int execute(char *argv[])
+void execute(char *argv[])
 {
     int pid;
     int child_info=-1;
 
     if(argv[0]==NULL)
-        return 0;
+        return;
     if((pid=fork())==-1)
         perror("fork");
     else if(pid==0){
         signal(SIGINT,SIG_DFL);
-        //signal(SIGQUIT,SIG_DFL);
+        signal(SIGQUIT,SIG_DFL);
         execvp(argv[0],argv);
         perror("cannot execute command");
         exit(1);
@@ -158,7 +177,7 @@ int execute(char *argv[])
             perror("wait");
     }
 
-    return child_info;
+    //return child_info;
 }
 
 
@@ -210,7 +229,7 @@ void mycd(char *argv[]){
 
     }else if(strcmp(argv[1],"-")==0){//返回进入此目录之前所在的目录
         char strcwd1[MAX];
-        getcwd(strcwd1,sizeof(strcwd1));
+        getcwd(strcwd1,sizeof(strcwd));
         chdir(strcwd);
         printf("%s\n",strcwd);
         strcpy(strcwd,strcwd1);
@@ -345,9 +364,11 @@ void mydup3(char *argv[])
     dup2(filefdin,0);
 }
 
+
+//管道段错误
 void callCommandWithPipe(char *argv[],int count)//多重管道
 {
-    int ret[10]={0};//记录管道的位置
+    int ret[100]={0};//记录管道的位置
     int number=0;//记录命令个数
     int i;
     pid_t pid;
@@ -359,12 +380,12 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     }
 
     int cmd_count=number+1;
-    char *cmd[cmd_count][10];
+    char* cmd[cmd_count][100];
 
     for(i=0;i<cmd_count;i++){//将命令以管道分割符分好
-        int j,n=0,i=0;
         if(i==0){
-            for(j=0;j<ret[i];j++){
+            int n=0;
+            for(int j=0;j<ret[i];j++){
                 cmd[i][n++]=argv[j];
             }
             cmd[i][n]=NULL;
@@ -389,6 +410,7 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     pipe(fd[i]);
   }
   //创建子进程
+  
   for(i=0;i<cmd_count;i++){
     pid=fork();
     if(pid==0){
@@ -401,15 +423,15 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
             dup2(fd[0][1],1);//绑定写端
             close(fd[0][0]);//关闭读端
 
-            for(int j=0;j<cmd_count-2;j++){//其他管道读写端全部关闭
+            for(int j=1;j<cmd_count-1;j++){//其他管道读写端全部关闭
                 close(fd[j][1]);
                 close(fd[j][0]);
             }
         }else if(i==number){//最后一个管道
-            dup2(fd[i][0],0);//绑定读端
-            close(fd[i][1]);//关闭写端
+            dup2(fd[i-1][0],0);//绑定读端
+            close(fd[i-1][1]);//关闭写端
 
-            for(int j=0;j<cmd_count;j++){
+            for(int j=0;j<cmd_count-2;j++){
                 close(fd[j][1]);
                 close(fd[j][0]);
             }
@@ -433,7 +455,7 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
   perror("execvp");
   exit(1);
 
-  if(pid>0){
+  
     for(i=0;i<number;i++){
         close(fd[i][0]);
         close(fd[i][1]);
@@ -444,12 +466,12 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
             return;
         }
        // waitpid(pid, NULL, 0);
-    }
+    
     for(int j=0;j<number;j++){
         wait(NULL);
     }
     
-}
 
+}
 
 
