@@ -45,7 +45,7 @@ void colorprint();
 
 int main()
 {
-    read_history(NULL);
+    
     char *argv[MAX]={NULL};
     char *cmdline=NULL;
 
@@ -59,20 +59,11 @@ int main()
 
         setup();
 
-
         cmdline=readline(" ");
-
-        add_history(cmdline);
-        write_history(NULL);
 
         if(cmdline==NULL){//屏蔽ctrl+D
             printf("\n");
             continue;
-        }
-        
-
-        if(*cmdline){
-            add_history(cmdline);//历史命令
         }
         
         char *mark=" ";
@@ -434,7 +425,6 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
         }
     }
   
-
   execvp(cmd[i][0],cmd[i]);//文件名和路径
   perror("execvp");
   exit(1);
