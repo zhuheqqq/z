@@ -88,7 +88,7 @@ int main()
 
     }
    
-   // free(argv);
+   free(argv);
 
     return 0;
     
@@ -366,10 +366,11 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
     int cmd_count=number+1;
     char *cmd[cmd_count][10];
 
-    for(i=0;i<cmd_count;i++){//将命令以管道分割符分好
-        int j,n=0;
+    for(int i=0;i<cmd_count;i++){//将命令以管道分割符分好
+        
         if(i==0){
-            for(j=0;j<ret[i];j++){
+            int n=0;
+            for(int j=0;j<ret[i];j++){
                 cmd[i][n++]=argv[j];
             }
             cmd[i][n]=NULL;
@@ -406,7 +407,7 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
             dup2(fd[0][1],1);//绑定写端
             close(fd[0][0]);//关闭读端
 
-            for(int j=1;j<cmd_count-2;j++){//其他管道读写端全部关闭
+            for(int j=1;j<cmd_count-1;j++){//其他管道读写端全部关闭
                 close(fd[j][1]);
                 close(fd[j][0]);
             }
@@ -432,12 +433,12 @@ void callCommandWithPipe(char *argv[],int count)//多重管道
             }
         }
     }
-  }
+  
 
   execvp(cmd[i][0],cmd[i]);//文件名和路径
   perror("execvp");
   exit(1);
-
+  }
   
     for(i=0;i<number;i++){
         close(fd[i][0]);
