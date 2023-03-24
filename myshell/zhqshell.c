@@ -247,7 +247,8 @@ void mydup(char *argv[])//重定向使输出输出到文件中
         if(flag==3){
         callCommandWithPipe(str,number);
         }else{
-            execvp(str[0],str);
+            //execvp(str[0],str);
+            execute(str);
         }
     }else if(pid>0){
         if(pass==1){
