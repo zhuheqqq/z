@@ -93,7 +93,7 @@ void colorprint(){
     printf("\033[1m\033[34m%s\033[0m",lujing);
     printf("$ ");
 
-    fflush(stdout);//清空缓冲区
+    fflush(stdout);//清空缓冲区，刷新缓冲区
 }
 
 void setup()
