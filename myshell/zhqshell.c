@@ -14,11 +14,6 @@
 #include<readline/history.h>
 
 
-#define YES 1
-#define NO 0
-
-//#define DFL_PROMPT "zhq_shell~$ "
-
 #define MAX 128
 
 int pass=0;//标记&
@@ -34,8 +29,6 @@ void mydup(char *argv[]);
 void mydup2(char *argv[]);
 //输入重定向'<'
 void mydup3(char *argv[]);
-//管道'|'
-//void mypipe(char *argv[], int cnt);
 //实现多重管道'|'
 void setup();//屏蔽信号
 void callCommandWithPipe(char *argv[], int count);//
