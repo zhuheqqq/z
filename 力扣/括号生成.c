@@ -1,3 +1,4 @@
+//利用回溯算法,与深度优先遍历很像
 #define MAXSIZE 1430
 
 char **generateParenthesis(int n,int *returnSize){
