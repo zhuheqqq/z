@@ -13,6 +13,7 @@ void *tfn(void *arg){
         exit(0);//表示退出进程
         return NULL;//表示返回调用者
         pthread_exit(NULL);//表示退出当前线程
+        //pthread_exit(void *ret),ret:退出值,无退出值时NULL
     }
 
     printf("--I'm %dth thread:pid=%d,tid=%d\n",i+1,getpid(),pthread_self());
