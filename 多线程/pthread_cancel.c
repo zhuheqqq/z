@@ -29,7 +29,7 @@ int main(int argc,char *argv[]){
     printf("main:pid=%d,tid=%d\n",getpid(),pthread_self());
 
     sleep(5);
-    
+
     ret=pthread_cancel(tid);//终止线程
     if(ret!=0){
         perror("pthread_cancel error\n");
