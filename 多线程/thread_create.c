@@ -21,4 +21,7 @@ int main(int argc,char *argv[]){
     }
     sleep(1);
     return 0;
+
+    //上述两条可以替换成
+    //pthread_exit((void *)0)
 }
