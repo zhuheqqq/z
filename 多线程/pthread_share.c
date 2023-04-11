@@ -11,7 +11,7 @@ void *tfn(void *arg)
     while(1)
     {
         printf("hello");
-        sleep(rand()%3);//模拟长时间操作共享资源,导致cou易主,产生与时间有关的错误
+        sleep(rand()%3);//模拟长时间操作共享资源,导致cpu易主,产生与时间有关的错误
         printf("world\n");
         sleep(rand()%3);
     }
