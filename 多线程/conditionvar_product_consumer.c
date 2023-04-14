@@ -24,7 +24,7 @@ void *consumer(void *p){
         pthread_mutex_lock(&lock);
 
         while(head==NULL){//头指针为空,说明没有节点
-            pthread_cond_wait(&has_product,&lock);//消费者阻塞等待
+            pthread_cond_wait(&has_product,&lock);//消费者阻塞等待,pthread_cond_wait返回时,重写加锁mutex
         }
         mp=head;
         head=mp->next;//模拟消费掉一个产品
