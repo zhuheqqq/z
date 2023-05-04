@@ -13,7 +13,7 @@ int eaters = 0;
 
 //-------------------一些信号量----------------
 sem_t sem_fork[NUM];
-sem_t sem_eaters;
+sem_t sem_eaters;//可同时拿起筷子的人数
 void sem_mutex_init()
 {
 	int i;
