@@ -65,14 +65,14 @@ void dele(NODE *head,int t)
     p=head->next;
     while(p!=NULL)
     {
-    if(p->data==t){
-        q->next=p->next;
-        free(p);
-        break;
-    }else{
-        q=p;
-        p=p->next;
-    }
+        if(p->data==t){
+            q->next=p->next;
+            free(p);
+            break;
+        }else{
+            q=p;
+            p=p->next;
+        }
     }
     if(p==NULL){
         printf("无符合条件的节点");

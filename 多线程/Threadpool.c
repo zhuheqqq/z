@@ -57,4 +57,87 @@ threadpool* threadinit(int num)
     }
     return pool;
 }
-void *worker();
+
+//工作者完成任务
+void *worker(void *arg)
+{
+    threadpool *pool=(threadpool *)arg;//强制类型转换
+
+    while(1){
+        pthread_mutex_lock(&pool->mutexpool);//锁住整个线程池
+
+        //判断任务队列是否为空以及线程池是否关闭
+        if(pool->first==NULL&&!pool->pooldestroy){
+            //阻塞等待直到被唤醒
+            pthread_cond_wait(&pool->isempty,&pool->mutexpool);
+        }
+
+        //如果线程池被关闭或者销毁
+        if(pool->pooldestroy==1){
+            //解锁并销毁线程
+            pthread_mutex_unlock(&pool->mutexpool);
+            pthread_exit(NULL);
+        }
+
+        //如果上述情况没有发生或者是阻塞的线程被重新唤醒,则开始执行任务
+        task *t=pool->first;
+        pool->first=t->next;
+        pool->tasknum--;
+        free(t);
+        t=NULL;
+    }
+}
+
+//往任务队列里添加任务
+void Taskadd(threadpool *pool,void *(task_signal)(void *),void *arg)
+{
+    //如果线程池已经关闭或者被销毁
+    if(pool->pooldestroy==1){
+        return;
+    }
+
+    pthread_mutex_lock(&pool->mutexpool);//锁住整个线程池
+
+    task *t=(task *)malloc(sizeof(task));
+    t->arg=arg;
+    t->task_signal=task_signal;
+    t->next=NULL;
+
+    //如果任务队列中没有任务
+    if(pool->first==NULL)
+    {
+        pool->first=t;
+        pool->end=t;
+    }else{
+        //如果任务队列中还有任务,则添加新的任务到任务队列的尾部
+        pool->end->next=t;
+        pool->end=t;
+    }
+
+    pool->tasknum++;//任务数量++
+
+    pthread_cond_signal(&pool->isempty);//唤醒阻塞的线程
+    pthread_mutex_unlock(&pool->mutexpool);//解锁线程池
+
+}
+
+//销毁线程池
+void Pooldestroy(threadpool *pool)
+{
+    if(pool==NULL)
+    {
+        return;
+    }
+
+    pool->pooldestroy=1;//给线程池一个信号,让他自己销毁
+
+    for(int i=0;i<pool->threadnum;i++){
+        pthread_cond_signal(&pool->isempty);//逐个销毁线程
+    }
+
+    pthread_mutex_destroy(&pool->mutexpool);//销毁锁
+    pthread_cond_destroy(&pool->isempty);//销毁条件变量
+
+    free(pool);
+    pool=NULL;
+}
