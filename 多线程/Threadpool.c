@@ -35,29 +35,6 @@ typedef struct threadpool
 
 }threadpool;
 
-//线程池的初始化
-threadpool* threadinit(int num)
-{
-    //在堆区分配内存
-    threadpool *pool=(threadpool *)malloc(sizeof(threadpool));
-
-    pool->threadnum=num;
-    pool->tasknum=0;
-    pool->first=NULL;
-    pool->end=NULL;
-
-    pthread_mutex_init(&pool->mutexpool,NULL);
-    pthread_cond_init(&pool->isempty,NULL);
-
-    pool->pooldestroy=0;
-
-    for(int i=0;i<num;i++){
-        pthread_t tid;
-        pthread_create(&tid,NULL,worker,pool);
-    }
-    return pool;
-}
-
 //工作者完成任务
 void *worker(void *arg)
 {
@@ -88,8 +65,33 @@ void *worker(void *arg)
     }
 }
 
+//线程池的初始化
+threadpool* threadinit(int num)
+{
+    //在堆区分配内存
+    threadpool *pool=(threadpool *)malloc(sizeof(threadpool));
+
+    pool->threadnum=num;
+    pool->tasknum=0;
+    pool->first=NULL;
+    pool->end=NULL;
+
+    pthread_mutex_init(&pool->mutexpool,NULL);
+    pthread_cond_init(&pool->isempty,NULL);
+
+    pool->pooldestroy=0;
+
+    for(int i=0;i<num;i++){
+        pthread_t tid;
+        pthread_create(&tid,NULL,worker,pool);
+    }
+    return pool;
+}
+
+
+
 //往任务队列里添加任务
-void Taskadd(threadpool *pool,void *(task_signal)(void *),void *arg)
+void Taskadd(threadpool *pool,void (*task_signal)(void *),void *arg)
 {
     //如果线程池已经关闭或者被销毁
     if(pool->pooldestroy==1){
