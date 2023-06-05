@@ -125,3 +125,118 @@ const char *inet_ntop(int af,const void *arc,char *dst,socklen_t size);
 size:dst缓冲区的大小
 
 返回值:成功返回dst,失败返回NULL
+
+### sockaddr地址结构
+
+![](/home/zhuheqin/Pictures/sockaddr地址结构.png)
+
+由于历史原因,我们一般定义struct sockaddr_in,然后在函数接口中强转成struct sockaddr
+
+```c
+struct sockaddr_in addr;
+//初始化addr
+addr.sin_family=AF_INET/AF_INET6//指明使用的IP协议
+addr.sin_port=htons(9527);//端口号
+
+int dst;
+inet_pton(AF_INET,"192.157.22.45",(void*)&dst);//这里因为结构体嵌套结构,所以必须这样初始化
+addr.sin_addr.s_addr=dst;//这里我们一般使用一个宏INADDR_ANY,代表取出系统中有效的任意ip地址,默认取出二进制类型
+//addr.sin_addr.s_addr=htonl(INADDR_ANY)
+bind(fd,(struct sockaddr*)&addr,size);
+```
+
+## socket模型创建流程
+
+**一个服务器和一个客户端进行通信时,一共会用到三个套接字**,其中两个进行通信,另外一个监听
+
+### 服务器端
+
+socket()函数:创建一个socket套接字
+
+```c
+#include<sys/socket.h>
+int socket(int domain,int type,int protocol);
+/*domain:指明所使用的ip协议,AF_INET/AF_INET6
+type:所选用的数据传输协议,有流式协议(SOCK_STREAM)和数据报式协议(SOCK_DGRAM)
+protocol:一般为0表示根据type选定相应的协议
+
+返回值:成功返回新套接字所对应的文件描述符,失败返回-1并设置errno*/
+```
+
+bind()函数:往socket绑定一个地址结构(ip+port)
+
+```c
+int bind(int sockfd,const struct sockaddr*addr,socklen_t len);
+/*sockfd:socket函数返回值
+
+初始化addr
+struct sockaddr_in addr;
+addr.sin_family=AF_INET;
+addr.sin_port=htons(port);
+addr.sin_addr.s_addr=htonl(INADDR_ANY);
+addr:传入参数,(struct sockaddr*)&addr
+
+addrlen:sizeof(addr)地址结构的大小
+
+返回值:成功返回0,失败返回-1并设置errno
+```
+
+listen()函数:设置同时与服务器建立连接的上限数(同时进行三次握手的客户端数量)
+
+```c
+int listen(int sockfd,int backlog)l;
+/*sockfd:socket函数返回值
+backlog:上限数值,最大值128
+
+返回值:成功返回0,失败返回-1并设置errno*/
+```
+
+accept()函数:阻塞等待客户端建立连接,成功返回一个与客户端连接成功的socket文件描述符
+
+```c
+int accept(int sockfd,struct sockaddr*addr,socklen_t *addrlen);
+/*sockfd:socket函数返回值
+addr:传出参数,传出的是成功与服务器建立连接的那个客户端的地址结构(ip+port)
+
+socklen_t clit_addr_len=sizeof(addr);
+addrlen:传入传出,传入addr夫人大小,传出的是客户端addr的实际大小.传入函数取地址
+
+返回值:成功返回能与服务器进行数据通信的socket对应的文件描述符,失败返回-1并设置errno*/
+```
+
+### 客户端
+
+connect()函数:与现有的socket服务器建立连接
+
+```c
+int connect(int sockfd,const struct sockaddr *addr,socklen_t addrlen);
+/*sockfd:socket函数返回值
+addr:传入参数,传入服务器的地址结构
+addrlen:服务器的地址结构大小
+
+返回值:成功返回0,失败返回-1并设置errno
+
+如果不使用bind绑定客户端地址结构,采用"隐式绑定"(客户端的ip和port有系统自动分配)
+```
+
+## TCP通信流程分析
+
+server:
+
+- socket():创建socket
+- bind():绑定服务器地址结构
+- listen():设置监听上限
+- accept():阻塞监听客户端连接
+- read(fd):读socket获取客户端数据
+- 大小写转换:toupper()
+- write(fd)
+- close()
+
+client:
+
+- socket():创建一个socket
+- connect():与服务器建立连接
+- write():写数据到socket
+- read():读转换后的数据
+- 显示读取结果
+- close()
