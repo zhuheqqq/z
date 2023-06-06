@@ -82,6 +82,12 @@ IP地址+端口号:可以在网络环境中,唯一标识一个进程
 
 ### 网络字节序
 
+在计算机网络中，不同的计算机体系结构可能使用不同的字节序（byte order），即数据在内存中存储的方式不同。为了在网络上实现数据传输的正确性和可靠性，通常需要进行字节序的转换。
+
+在套接字编程中，IP地址和端口号通常以主机字节序（即本地字节序）的形式存储。但是，在进行网络通信时，这些数据需要在不同计算机之间进行传输，因此需要将它们转换为网络字节序（即大端字节序）的形式，以确保数据在不同计算机之间传输时能够正确解析。
+
+具体来说，网络字节序采用的是大端字节序，即高位字节存放在低地址处，低位字节存放在高地址处。例如，32位的IP地址0x12345678在网络字节序下的表示方式为0x78 0x56 0x34 0x12。而在小端字节序的计算机上，该IP地址的内存中的表示方式为0x78 0x56 0x34 0x12，而在大端字节序的计算机上，该IP地址的内存中的表示方式为0x12 0x34 0x56 0x78。
+
 网络数据流有大端和小端之分.发送主机通常将发送缓冲区的数据按内存地址从低到高的顺序发出,接收主机把从网络上接到的字节依次保存在接收缓冲区中,也是按内存地址从低到高的顺序保存,因此,网络数据流的地址:先发出的数据是低地址,后发出的数据是高地址
 
 网络数据流采用大端字节序,即低地址高字节
@@ -91,17 +97,22 @@ IP地址+端口号:可以在网络环境中,唯一标识一个进程
 ```c
 #include<arpa/inet.h>
 
-//本地转网络,IP协议
+//本地转网络,IP协议,htonl()函数将主机字节序的32位IP地址转换为网络字节序的32位IP地址
 uint32_t htonl(uint32_t hostlong);//h表示host,n表示network,l表示32位长整数,s表示16位短整数
+uint32_t ntohl(uint32_t netlong);
+
 //针对port端口
 uint16_t htons(uint16_t hostshort);
-uint32_t ntohl(uint32_t netlong);
 uint16_t ntohs(uint16_t netshort);
 ```
 
 如果主机是小端字节序,这些函数做相应的转换,如果是大端字节序,这些函数将原封不动的返回
 
 ### IP地址转换函数
+
+在网络通信中，数据传输需要通过IP地址来标识发送方和接收方的网络地址。套接字是一种用于在计算机之间进行网络通信的抽象概念，它需要使用IP地址和端口号来确定通信的目标。在套接字中，IP地址通常以字符串形式表示，例如"192.168.1.1"。但是，在网络设备中，IP地址通常以二进制形式存储和传输，例如32位的IPv4地址。因此，在套接字和网络设备之间传输IP地址时，需要进行字符串和二进制之间的转换。这个过程被称为IP地址转换。
+
+在套接字编程中，IP地址转换可以使用各种库和函数来实现。例如，在C语言中，可以使用inet_addr函数将字符串形式的IP地址转换为二进制形式，使用inet_ntoa函数将二进制形式的IP地址转换为字符串形式。在Python中，可以使用socket库中的inet_aton和inet_ntoa函数来进行IP地址转换。这些函数的使用可以使套接字编程更加方便和易于实现。
 
 ```c
 #include<arpa/inet.h>
@@ -166,6 +177,7 @@ protocol:一般为0表示根据type选定相应的协议
 bind()函数:往socket绑定一个地址结构(ip+port)
 
 ```c
+#include<arpa/inet.h>
 int bind(int sockfd,const struct sockaddr*addr,socklen_t len);
 /*sockfd:socket函数返回值
 
@@ -240,3 +252,88 @@ client:
 - read():读转换后的数据
 - 显示读取结果
 - close()
+
+## serve的实现
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<unistd.h>
+#include<errno.h>
+#include<pthread.h>
+#include<sys/socket.h>
+#include<ctype.h>
+#include<arpa/inet.h>
+
+#define SERV_PORT 9527
+//#define BUFSIZE 4096
+
+void sys_err(const char*str)
+{
+    perror(str);
+    exit(1);
+}
+
+int main(int argc,char *argv[])
+{
+    //创建socket
+    int lfd=0,cfd=0;
+    int ret=0;
+    char buf[BUFSIZ];//系统自带8192
+    struct sockaddr_in serv_addr,clit_addr;
+    socklen_t clit_addr_len;
+
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_port=htons(SERV_PORT);
+    serv_addr.sin_addr.s_addr=htonl(INADDR_ANY);
+
+    lfd=socket(AF_INET,SOCK_STREAM,0);
+    if(lfd==-1)//检查返回值
+    {
+        sys_err("socket error");
+    }
+
+    //建立连接
+    ret=bind(lfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
+    if(ret==-1)
+    {
+        sys_err("bind error");
+    }
+//设置上限数
+    ret=listen(lfd,128);
+    if(ret==-1)
+    {
+        sys_err("listen error");
+    }
+
+    //阻塞等待连接
+    clit_addr_len=sizeof(clit_addr);
+    cfd=accept(lfd,(struct sockaddr*)&clit_addr,&clit_addr_len);
+    if(cfd==-1)
+    {
+        sys_err("accept error");
+    }
+
+    //服务器开始读
+    while(1)
+    {
+        ret=read(cfd,buf,sizeof(buf));
+        write(STDOUT_FILENO,buf,ret);
+
+        for(int i=0;i<ret;i++)
+        {
+            buf[i]=toupper(buf[i]);
+        }
+
+        //写出到buf
+        write(cfd,buf,ret);
+    }
+    close(lfd);
+    close(cfd);
+
+}
+```
+
+## client的实现
+
