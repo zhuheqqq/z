@@ -20,9 +20,13 @@ TCP协议注重数据的传输,http协议注重数据的解释
 
 网络接口层常见协议有ARP协议,RARP协议
 
-TCP传输控制协议是一种面向连接的,可靠的,基于字节流的传输层通信协议
+### UDP用户数据报协议
 
 UDP用户数据协议是OSI参考模型中一种无连接的传输层协议,提供面向事务的简单不可靠信息传送服务
+
+![](/home/zhuheqin/Downloads/UDP数据报.png)
+
+TCP传输控制协议是一种面向连接的,可靠的,基于字节流的传输层通信协议(SCTP与TCP类似,但他还提供消息边界,传输级别多宿支持以及将头端阻塞减少到最小的一种方法)
 
 HTTP超文本传输协议是互联网上应用最为广泛的一种网络协议
 
@@ -224,6 +228,12 @@ connect()函数:与现有的socket服务器建立连接
 int connect(int sockfd,const struct sockaddr *addr,socklen_t addrlen);
 /*sockfd:socket函数返回值
 addr:传入参数,传入服务器的地址结构
+同样的,addr需要被初始化
+addr.sin_family=AF_INET;
+addr.sin_port=要求跟服务端bind时设定的port完全一致
+addr.sin_addr.s_addr
+inet_pton(AF_INET,"服务器的ip地址",&addr.sin_addr.s_addr);
+
 addrlen:服务器的地址结构大小
 
 返回值:成功返回0,失败返回-1并设置errno
@@ -336,4 +346,60 @@ int main(int argc,char *argv[])
 ```
 
 ## client的实现
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<unistd.h>
+#include<errno.h>
+#include<pthread.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
+
+#define SERV_PORT 9527
+
+void sys_err(const char *str)
+{
+    perror(str);
+    exit(1);
+}
+
+int main(int argc,char *argv[])
+{
+    int cfd;
+    int count=10;
+    char buf[BUFSIZ];
+    struct sockaddr_in serv_addr;//服务器地址结构
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_port=htons(SERV_PORT);
+    inet_pton(AF_INET,"127.0.0.1",&serv_addr.sin_addr.s_addr);//将ip地址转换成网络字节序
+    //serv_addr.sin_addr.s_addr=htonl(INADDR_ANY);
+
+    cfd=socket(AF_INET,SOCK_STREAM,0);
+    if(cfd==-1)
+    {
+        sys_err("socket error");
+    }
+
+    int ret=connect(cfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
+    if(ret==-1)
+    {
+        sys_err("connect error");
+    }
+
+    while(--count)
+    {
+        write(cfd,"hello\n",6);
+        ret=read(cfd,buf,sizeof(buf));
+        write(STDOUT_FILENO,buf,ret);
+        sleep(1);
+    }
+    close(cfd);
+
+    return 0;
+}
+```
+
+## TCP通信时序(三次握手和四次挥手)
 
