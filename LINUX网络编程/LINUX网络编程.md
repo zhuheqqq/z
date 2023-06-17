@@ -208,6 +208,7 @@ struct sockaddr_in addr;
 addr.sin_family=AF_INET;
 addr.sin_port=htons(port);
 addr.sin_addr.s_addr=htonl(INADDR_ANY);
+如果是IPV6,则上述代码改为addr.sin6_addr=in6addr_any;
 addr:传入参数,(struct sockaddr*)&addr
 
 addrlen:sizeof(addr)地址结构的大小
@@ -218,7 +219,7 @@ addrlen:sizeof(addr)地址结构的大小
 listen()函数:设置同时与服务器建立连接的上限数(同时进行三次握手的客户端数量)
 
 ```c
-int listen(int sockfd,int backlog)l;
+int listen(int sockfd,int backlog);
 /*sockfd:socket函数返回值
 backlog:上限数值,最大值128
 
@@ -421,3 +422,30 @@ int main(int argc,char *argv[])
 
 ## TCP通信时序(三次握手和四次挥手)
 
+一般是由客户端发起的，但是不绝对，大多数情况是
+
+SYN：标志位，专门用来请求建立通信连接
+
+ACK：应答标志位，表示收到了来建立连接的请求
+
+SYN和ACK都是首部的标志位，而ACK和SYN的值是对数据流的标记
+
+三次握手发生在内核空间，在用户空间的体现是accept()函数和connect()函数成功执行并且返回了
+
+### 数据通信
+
+三次握手的最后一次握手同时开始传输数据
+
+### 四次挥手
+
+断开连接需要四次挥手（半关闭）
+
+客户端发送FIN标志位关闭连接
+
+## 滑动窗口（TCP流量控制）
+
+服务器可以不必接受一条就回复一条，可以先批量回复，一条回执将客户端前面所有的数据都回复
+
+不论是客户端还是服务器端都有缓冲区，滑动窗口来指定缓冲区的大小
+
+如果发送端发送的速度较快，接收端接收数据后处理的速度较慢，而接受缓冲区的大小是固定的，就会丢失数据，TCP协议通过滑动窗口机制解决这一问题
