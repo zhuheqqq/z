@@ -11,6 +11,7 @@ void sys_err(const char *str)
 int main(int argc,char *argv[])
 {
     int cfd;
+    char *s;
     int count=10;
     char buf[BUFSIZ];
     struct sockaddr_in serv_addr;//服务器地址结构
