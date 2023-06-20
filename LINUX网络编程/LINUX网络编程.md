@@ -469,3 +469,69 @@ SYN和ACK都是首部的标志位，而ACK和SYN的值是对数据流的标记
 如果发送端发送的速度较快，接收端接收数据后处理的速度较慢，而接受缓冲区的大小是固定的，就会丢失数据，TCP协议通过滑动窗口机制解决这一问题
 
 发送给连接对端，本端的缓冲区大小（实时），保证数据不会丢失。
+
+## 多进程服务器并发
+
+### 多进程并发服务器思路
+
+**进程数据不共享只复制，所以可以分别关闭文件描述符**
+
+伪代码如下：
+
+```c
+pid_t pid;
+int listenfd,connfd;//监听套接字和已连接套接字
+listenfd=Socket(...);//创建监听套接字
+Bind(listenfd,...);//绑定地址
+Listen(listenfd,LISTENQ);//设置监听上限
+for(;;)
+{
+    connfd=Accept(listenfd,...);//阻塞等待连接
+    if((pid=Fork())==0)//如果是子进程
+    {
+        Close(listenfd);
+        //对于child来说，不需要用于建立连接的套接字所以关闭
+        //父子进程共享监听与连接的套接字，子进程关闭监听套接字，只是监听套接字的被引用次数-1,不影响父进程继续监听与新的客户端连接
+        doit(connfd);//伪代码，处理请求
+        Close(connfd);
+        exit(0);
+    }else if(pid>0)//如果是父进程
+    {
+        Close(connfd);//这里同样是-1
+        /*while(1)
+        {
+            waitpid(0,NULL,WNOHANG);//WNOHANG告知内核在在没有已终止的子进程时不要阻塞
+        }//这里如果以循环非阻塞状态去回收子进程，此时有客户端进来无法accept，如果不回收则会变成僵尸进程*/
+        //这部分代码应该注册信号捕捉函数，在回调函数中完成子进程的回收
+        continue;
+    }
+}
+
+```
+
+## 多线程并发服务器
+
+### 多线程并发服务器思路
+
+**线程中文件描述符共享不能关**，还有就是线程最好不要和信号一起用
+
+```c
+pthread_t tid;
+int listenfd,connfd;//监听套接字和已连接套接字
+listenfd=Socket(...);//创建监听套接字
+Bind(listenfd,...);//绑定地址
+Listen(listenfd,LISTENQ);//设置监听上限
+while(1)
+{
+    connfd=Accept(listenfd,...);
+    pthread_create(&tid,NULL,tfn,NULL);//tfn是回调函数
+    pthread_detach(tid);
+}
+//子线程：
+void *tfn(void *arg)
+{
+    //注意这里不能关闭监听套接字
+    doit(connfd);
+}
+```
+
