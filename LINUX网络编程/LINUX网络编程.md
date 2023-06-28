@@ -539,10 +539,12 @@ void *tfn(void *arg)
 
 1.主动发起连接请求端：CLOSE--发送SYN--SENT_SYN--接收ACK、SYN--SENT_SYN--发送ACK--ESTABLISHED（数据通信态）
 
-2.主动关闭连接请求端：ESTABLISHED（数据通信态）--发送FIN--FIN_WAIT_1--接收ACK--FIN_WAIT_2（半关闭）--接收对端发送FIN--FIN_WAIT_2（半关闭）--回发ACK--TIME_WAIT（只有主动关闭连接才会经历这个状态）--等待2MSL
+2.主动关闭连接请求端：ESTABLISHED（数据通信态）--发送FIN--FIN_WAIT_1--接收ACK--FIN_WAIT_2（半关闭）--接收对端发送FIN--FIN_WAIT_2（半关闭）--回发ACK--TIME_WAIT（只有主动关闭连接才会经历这个状态）--等待2MSL--CLOSE
 
 3.被动接受连接请求端：CLOSE--LISTEN--接收SYN同时发送ACK、SYN--SYN_RCVD--接收ACK--ESTABLISHED（数据通信态）
 
 4.ESTABLISTED（数据通信态）--接收FIN、发送ACK--CLOSE_WAIT（说明对端[主动关闭连接端]处于半关闭状态）--发送FIN--LAST_ACK--接收ACK--CLOSE
+
+2MSL时长：（一定出现在主动关闭连接请求端)保证最后一个ACK能成功被对端接收（等待期间，对端没收到我发送的ACK，对端会再次发送FIN请求）
 
 四次握手完成
