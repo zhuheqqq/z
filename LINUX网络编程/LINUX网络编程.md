@@ -610,14 +610,54 @@ howto：SHUT_RD关闭读端
 ```
 
 ```cpp
-nfds指的是select管理的所有描述符中最大的那个，文件描述符表中文件描述符最大的那个
+nfds指的是select管理的所有描述符中最大的那个加1，文件描述符表中文件描述符最大的那个+1
 readfds对应读事件
 writefds对应写事件
 exceptfds对应异事件,均为传入传出参数
 timeout定时阻塞监控时间:
 	NULL永远等下去
     设置timeval等待固定时间
-    设置timeval里时间均为0,检查描述符后立即返回lu
-    返回值是返回你所监听的所有文件描述符中有事件发生的总个数
+    设置timeval里时间均为0,检查描述符后立即返回轮询
+返回值是返回所有监听集合中的所有文件描述符中有事件发生的总个数
+```
+
+```cpp
+void FD_CLR(int fd, fd_set *set);将一个文件描述符从监听集合中移除
+int  FD_ISSET(int fd, fd_set *set);判断一个文件描述符是否在监听集合中
+void FD_SET(int fd, fd_set *set);将待监听的文件描述符添加到监听集合中
+void FD_ZERO(fd_set *set);清空一个文件描述符集合
+ 
+```
+
+### select多路转接思路
+
+伪代码
+
+```cpp
+lfd=socket();创建套接字
+bind();绑定地址结构
+listen();设置监听上限
+fd_set rset,allset;创建监听集合
+FD_ZERO(&allset);将监听集合清空
+FD_SET(lfd,&allset);将lfd添加至监听集合中
+while(1)
+{
+    rset=allset;保存监听集合
+    ret=select(lfd+1,&rset,NULL,NULL,NULL);监听文件描述符集合对应事件
+    if(ret>0)//有监听的描述符满足对应事件
+    {
+        if(FD_ISSET(lfd,&rset)){//1在0不在
+            cfd=accept();建立连接返回用于通信的文件描述符
+            FD_SET(cfd,&allset);添加到监听通信描述符集合中
+        }
+        for(i=lfd+1;i<=最大文件描述符;i++)//在文件描述符表中，总是会从最小的tian qi
+        {
+          	FD_ISSET(i,&rset);看是否有读写事件发生
+            read();
+            小写转大写
+            write();
+        }
+    }
+}
 ```
 
