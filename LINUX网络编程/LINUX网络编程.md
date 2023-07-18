@@ -548,3 +548,76 @@ void *tfn(void *arg)
 2MSL时长：（一定出现在主动关闭连接请求端)保证最后一个ACK能成功被对端接收（等待期间，对端没收到我发送的ACK，对端会再次发送FIN请求）
 
 四次握手完成
+
+## 端口复用函数
+
+在server的tcp连接没有完全断开之前不允许重新监听是不合理的。因为，tcp连接没有完全断开指的是connfd没有完全断开，而我们重新监听的是listenfd,虽然占用的是同一个端口，但ip地址不同，connfd对应的是与末讴歌客户端通讯的具体的ip地址，而listenfd对应的是wildcard address.解决这个问题的方法是使用sesockopt函数设置socket描述符的选项SO_REUSEADDR为1,表示允许创建端口号相同但IP地址不同的多个SOCKET描述符。
+
+```cpp
+ #include <sys/socket.h>
+
+       int setsockopt(int socket, int level, int option_name,
+           const void *option_value, socklen_t option_len);
+
+```
+
+```cpp
+#include <sys/socket.h>
+
+       int getsockopt(int socket, int level, int option_name,
+           void *restrict option_value, socklen_t *restrict option_len);
+
+```
+
+定义一个opt=1表示设置端口复用
+
+```cpp
+int opt =1;
+setsockopt(lfd,SOL_SOCKET,SO_REUSEADDR,(void *)&opt,sizeof(opt));
+```
+
+## 半关闭和shutdown函数
+
+终止网络连接的方法是调用close函数，不过close函数有两个限制可以通过shutdown函数来避免:
+
+1. close把描述符的引用计数减一，只有该引用标为0才会关闭套接字。
+2. close会终止读写两个方向的数据传送。
+
+```cpp
+#include<sys/socket.h>
+int shutdown(int sockfd,int howto);
+howto：SHUT_RD关闭读端
+    SHUT_WR关闭写端
+    SHUT_RDWR关闭读写端
+```
+
+## 多路i/0转接
+
+不再由应用程序自己监视客户端连接，而是由内核替应用程序监视文件
+
+### select函数
+
+```cpp
+#include <sys/select.h>
+
+       typedef /* ... */ fd_set;
+
+       int select(int nfds, fd_set *_Nullable restrict readfds,
+                  fd_set *_Nullable restrict writefds,
+                  fd_set *_Nullable restrict exceptfds,
+                  struct timeval *_Nullable restrict timeout);
+
+```
+
+```cpp
+nfds指的是select管理的所有描述符中最大的那个，文件描述符表中文件描述符最大的那个
+readfds对应读事件
+writefds对应写事件
+exceptfds对应异事件,均为传入传出参数
+timeout定时阻塞监控时间:
+	NULL永远等下去
+    设置timeval等待固定时间
+    设置timeval里时间均为0,检查描述符后立即返回lu
+    返回值是返回你所监听的所有文件描述符中有事件发生的总个数
+```
+
