@@ -7,6 +7,8 @@
 #include<sys/types.h>
 #include<sys/epoll.h>
 #include<unistd.h>
+#include <fcntl.h>
+
 
 #define MAXLINE 10
 #define SERV_PORT 9000
@@ -47,8 +49,12 @@ int main()
 
     printf("received from %s at PORT %d\n",inet_ntop(AF_INET,&cliaddr.sin_addr,str,sizeof(str)),ntohs(cliaddr.sin_port));
 
+    int flag=fcntl(connfd,F_GETFL);//设置connfd非阻塞
+    flag|=O_NONBLOCK;
+    fcntl(connfd,F_SETFL,flag);
+
     event.data.fd=connfd;
-    epoll_ctl(efd,EPOLL_CTL_ADD,connfd,&event);
+    epoll_ctl(efd,EPOLL_CTL_ADD,connfd,&event);//将connfd加入监听红黑树
 
     while(1)
     {
@@ -56,9 +62,12 @@ int main()
 
         printf("res %d\n",res);
         if(resevent[0].data.fd==connfd){
-            len=read(connfd,buf,MAXLINE/2);
+            while(len=read(connfd,buf,MAXLINE/2)>0)//非阻塞读，轮询
+            {
+                write(STDOUT_FILENO,buf,len);
+            }
 
-            write(STDOUT_FILENO,buf,len);
+            
         }
     }
 
