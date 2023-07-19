@@ -661,3 +661,89 @@ while(1)
 }
 ```
 
+### epoll函数
+
+#### epoll_create创建一个监听红黑树
+
+```cpp
+#include<sys/epoll.h>
+
+int epoll_create(int size);//size代表的是创建的红黑树的监听节点数量（仅供内核参考）
+//返回值：指向新创建的红黑树的根节点的fd，失败返回-1
+```
+
+#### epoll_ctl操作一个监听红黑树
+
+```cpp
+int epoll_ctl(int epfd,int op,int fd,struct epoll_event *event);
+/*epfd:epoll_create函数的返回值
+op：对该监听红黑树所做的操作
+	EPOLL_CTL_ADD添加fd到监听红黑树
+	EPOLL_CTL_MOD修改FD在监听红黑树上的监听事件
+	EPOLL_CTL_DEL将一个fd从监听红黑树上摘下（取消监听）
+fd：待监听的FD
+event：本质是struct epoll_event结构体地址，有两个成员变量
+	events：EPOLLIN/EPOLLOUT/EPOLLERR
+	data:联合体：
+		int fd;对应监听事件的fd
+		void *ptr;
+		uint32_t u32;
+		uint64_t u64;
+返回值：成功返回0;失败-1errno
+```
+
+#### epoll_wait阻塞监听
+
+```cpp
+int epoll_wait(int epfd,struct epoll_event *events,int maxevents,int timeout);
+/*epfd:epoll_create函数的返回值
+events：数组，传出参数，传出满足监听条件的fd结构体
+maxevents：数组元素的总个数
+timeout：
+	-1：阻塞
+	0：不阻塞
+	>0:超时时间（ms）
+返回值：
+	>0:满足监听的总个数，可以用作循环上限。
+	0:没有fd满足监听事件
+	-1：失败errno
+```
+
+#### epoll实现多路转接思路
+
+```cpp
+lfd=socket();
+bind();
+listen();
+
+int epfd=epoll_create();
+
+struct epoll_event tep,ep[1024];//tep用来设置单个fd属性，ep是epoll_wait()传出的满足监听事件的数组
+tep.events=EPOLLIN;
+tep.data.fd=lfd;
+epoll_ctl(epfd,EPOLL_CTL_ADD,lfd,&tep);//将lfd添加到监听红黑树上
+while(1){
+	ret=epoll_wait(epfd,ep,1024,-1);//实施监听
+    for(i=0;i<ret;i++)
+    {
+        if(ep[i].data.fd==lfd){
+            cfd=Accept();
+            tep.events=EPOLLIN;//初始化cfd的监听属性
+            tep.data.fd=cfd;
+            epoll_ctl(epfd,EPOLL_CTL_ADD,cfd,&tep);
+        }else{//cfd满足读事件，有客户端写数据来
+            n=read();
+            if(n==0)
+            {
+                close(ep[i].data.fd);
+                epoll_ctl(epfd,EPOLL_CTL——DEL,CFD,NULL);//将关闭的cfd从监听树上摘下
+            }else if(n>0)
+            {
+                小写变大写；
+                    write
+            }
+        }
+    }
+}
+```
+
