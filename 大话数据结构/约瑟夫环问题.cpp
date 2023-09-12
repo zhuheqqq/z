@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 
 // 定义一个节点结构表示圆圈中的人
@@ -72,4 +72,71 @@ int main() {
     printf("最后剩下的人的编号是: %d\n", survivor);
 
     return 0;
+}*/
+
+
+
+//
+#include<stdio.h>
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+typedef struct List{//链表
+    int key;
+    int password;
+    struct List *next;
+}list;
+int n,m;
+list *ans = NULL;
+int pass[1001];
+void add(){
+    list *head,*body,*tail;
+    head = (list*)malloc(sizeof(list));
+    head->key = 1;
+    head->password = pass[0];//赋值密码
+    tail = head;
+    for(int i = 2;i<=n;i++){
+        body = (list*)malloc(sizeof(list));
+        body->key = i;
+        body->password = pass[i-1];
+        tail->next = body;
+        body->next = NULL;
+        tail = body;
+    }
+    tail->next = head;//头尾链接，循环链表
+    ans = head;
 }
+void solve(){
+    int size = n;
+    list *p = ans;
+    list *parent = ans;//设置它为p的上一个指针.
+    while(parent->next!=ans){
+        parent = parent->next;
+    }
+    printf("依次离开的人:\n") ;
+    while(p->next!=p){
+        for(int i = 1;i<m;i++){//数到m的人离开
+            parent = p;
+            p = p->next;
+        }
+        printf("%d ",p->key);
+        m = p->password;
+        parent->next = p->next;
+        free(p);
+        p = parent->next;
+    }
+    printf("%d",p->key);
+}
+int main(){
+    printf("请输入人数n和数值m :");
+    scanf("%d%d",&n,&m);//n个人、每数到m出列 。
+    printf("请输入%d个人的密码 :",n);
+    for(int i = 0;i<n;i++){
+    	scanf("%d",&pass[i]);
+	}
+    add();//先将n个人都加入链表
+    solve();
+    return 0;
+}
+ 
+ 
