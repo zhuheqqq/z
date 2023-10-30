@@ -49,8 +49,8 @@ public:
 
     }
     
-    void addAtIndex(int index, int val) {
-            if(index>size-1||index<0)
+    void addAtIndex(int index, int val) {//如果 index 等于链表的长度，那么该节点会被追加到链表的末尾
+            if(index>size||index<0)
             {
                 return;
             }
